@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SocialApp.Data;
 
@@ -11,13 +12,15 @@ using SocialApp.Data;
 namespace SocialApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240815234915_updated-userprofile-and-appuser")]
+    partial class updateduserprofileandappuser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "8.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -233,6 +236,7 @@ namespace SocialApp.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AppUserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Biography")
@@ -250,8 +254,7 @@ namespace SocialApp.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AppUserId")
-                        .IsUnique()
-                        .HasFilter("[AppUserId] IS NOT NULL");
+                        .IsUnique();
 
                     b.ToTable("UserProfile");
                 });
@@ -311,7 +314,9 @@ namespace SocialApp.Migrations
                 {
                     b.HasOne("SocialApp.Models.AppUser", "AppUser")
                         .WithOne("UserProfile")
-                        .HasForeignKey("SocialApp.Models.UserProfile", "AppUserId");
+                        .HasForeignKey("SocialApp.Models.UserProfile", "AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("AppUser");
                 });

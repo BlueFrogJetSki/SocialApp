@@ -7,7 +7,12 @@ namespace SocialApp.Models
 {
     public class AppUser : IdentityUser
     {
-        public UserProfile? UserProfile { get; set; } = null;
-      
+        public UserProfile? UserProfile { get; set; }
+
+        public AppUser()
+        {
+            // Default constructor
+        }
+
     }
 }

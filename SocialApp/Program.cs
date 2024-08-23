@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SocialApp.Data;
+using SocialApp.Interfaces;
 using SocialApp.Models;
+using SocialApp.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,9 +12,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<AppUser>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+    options.SignIn.RequireConfirmedAccount = true;
+})
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 
 var app = builder.Build();
 
