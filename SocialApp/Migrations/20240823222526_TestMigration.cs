@@ -5,7 +5,7 @@
 namespace SocialApp.Migrations
 {
     /// <inheritdoc />
-    public partial class updateduserProfileinterestsagain : Migration
+    public partial class TestMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

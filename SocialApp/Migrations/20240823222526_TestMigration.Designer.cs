@@ -12,8 +12,8 @@ using SocialApp.Data;
 namespace SocialApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240816013437_updated-userProfile-interests")]
-    partial class updateduserProfileinterests
+    [Migration("20240823222526_TestMigration")]
+    partial class TestMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -227,6 +227,27 @@ namespace SocialApp.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("SocialApp.Models.Post", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AppUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImgURL")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppUserId");
+
+                    b.ToTable("Post");
+                });
+
             modelBuilder.Entity("SocialApp.Models.UserProfile", b =>
                 {
                     b.Property<int>("Id")
@@ -236,11 +257,11 @@ namespace SocialApp.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AppUserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Biography")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("Interests")
                         .HasColumnType("nvarchar(max)");
@@ -249,12 +270,15 @@ namespace SocialApp.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AppUserId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[AppUserId] IS NOT NULL");
 
                     b.ToTable("UserProfile");
                 });
@@ -310,13 +334,20 @@ namespace SocialApp.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SocialApp.Models.Post", b =>
+                {
+                    b.HasOne("SocialApp.Models.AppUser", "AppUser")
+                        .WithMany()
+                        .HasForeignKey("AppUserId");
+
+                    b.Navigation("AppUser");
+                });
+
             modelBuilder.Entity("SocialApp.Models.UserProfile", b =>
                 {
                     b.HasOne("SocialApp.Models.AppUser", "AppUser")
                         .WithOne("UserProfile")
-                        .HasForeignKey("SocialApp.Models.UserProfile", "AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SocialApp.Models.UserProfile", "AppUserId");
 
                     b.Navigation("AppUser");
                 });

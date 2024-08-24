@@ -11,5 +11,6 @@ namespace SocialApp.Data
         {
         }
         public DbSet<SocialApp.Models.UserProfile> UserProfile { get; set; } = default!;
+        public DbSet<SocialApp.Models.Post> Post { get; set; } = default!;
     }
 }
