@@ -12,5 +12,18 @@ namespace SocialApp.Data
         }
         public DbSet<SocialApp.Models.UserProfile> UserProfile { get; set; } = default!;
         public DbSet<SocialApp.Models.Post> Post { get; set; } = default!;
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Configure the one-to-many relationship between UserProfile and Post
+            modelBuilder.Entity<UserProfile>()
+                .HasMany(up => up.Posts)
+                .WithOne(p => p.AuthorProfile)
+                .HasForeignKey(p => p.AuthorProfileId)
+                .OnDelete(DeleteBehavior.Restrict);  // Optional: configure cascade behavior
+
+        }
     }
 }

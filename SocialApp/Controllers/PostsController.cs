@@ -12,24 +12,30 @@ namespace SocialApp.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IImageService _imageService;
+        private readonly IPostRepository _postRepository;
 
-        public PostsController(ApplicationDbContext context, IImageService imageService)
+        public PostsController(IPostRepository repository, IImageService imageService, ApplicationDbContext context)
         {
             _context = context;
             _imageService = imageService;
+            _postRepository = repository;
         }
 
         // GET: Posts
         public async Task<IActionResult> Index()
         {
-            //Initalize DB if it is empty
+            //Initalize DB if it is empty and there is at least one user in the db
 
-            //if (_context.Post.any())
+            //if (!_context.Post.Any())
             //{
+            //    Console.WriteLine("Post table empty, initalizing");
+            //    var userID = _context.UserProfile.FirstOrDefaultAsync().Result?.Id;
             //    var resourcesResult = await _imageService.ListAllImageAsync();
-            //    Console.WriteLine(resourcesResult);
+
             //    int count = 1;
-            //    if (resourcesResult.Resources != null)
+
+
+            //    if (resourcesResult.Resources != null && userID != null)
             //    {
             //        Console.WriteLine(resourcesResult.Resources);
             //        foreach (var resource in resourcesResult.Resources)
@@ -38,7 +44,7 @@ namespace SocialApp.Controllers
             //            {
             //                ImgURL = resource.Url.ToString(),
             //                Description = $"image {count}",
-            //                AppUserId = "5f66959b-e76a-413f-a40f-73ca244d7d7c"
+            //                AuthorProfileId = userID
 
             //            };
             //            _context.Post.Add(newPost);
@@ -49,8 +55,9 @@ namespace SocialApp.Controllers
             //    }
             //}
 
-            var applicationDbContext = _context.Post.Include(p => p.AppUser);
-            return View(await applicationDbContext.ToListAsync());
+            var posts = await _postRepository.GetListAsync();
+
+            return View(posts);
         }
 
         // GET: Posts/Details/5
@@ -61,9 +68,8 @@ namespace SocialApp.Controllers
                 return NotFound();
             }
 
-            var post = await _context.Post
-                .Include(p => p.AppUser)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var post = await _postRepository.GetAsync(id);
+
             if (post == null)
             {
                 return NotFound();
@@ -84,13 +90,13 @@ namespace SocialApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,ImgURL,Description,AppUserId")] PostVM post)
+        public async Task<IActionResult> Create([Bind("Id,Img,Description,AuthorProfileId")] PostVM post)
         {
 
             if (ModelState.IsValid)
             {
 
-                var result = await _imageService.UploadImageAsync(post.ImgURL);
+                var result = await _imageService.UploadImageAsync(post.Img);
 
 
 
@@ -100,7 +106,7 @@ namespace SocialApp.Controllers
                     {
                         Description = post.Description,
                         ImgURL = result.Url.ToString(),
-                        AppUserId = post.AppUserId,
+                        AuthorProfileId = post.AuthorProfileId,
                     };
 
                     _context.Post.Add(newPost);
@@ -113,7 +119,7 @@ namespace SocialApp.Controllers
 
             }
 
-            ViewData["AppUserId"] = new SelectList(_context.Users, "Id", "Id", post.AppUserId);
+            ViewData["AppUserId"] = new SelectList(_context.Users, "Id", "Id", post.AuthorProfileId);
 
             return View(post);
         }
@@ -126,12 +132,14 @@ namespace SocialApp.Controllers
                 return NotFound();
             }
 
-            var post = await _context.Post.FindAsync(id);
+            var post = await _postRepository.GetAsync(id);
+
             if (post == null)
             {
                 return NotFound();
             }
-            ViewData["AppUserId"] = new SelectList(_context.Users, "Id", "Id", post.AppUserId);
+
+            ViewData["AppUserId"] = new SelectList(_context.Users, "Id", "Id", post.AuthorProfileId);
             return View(post);
         }
 
@@ -140,7 +148,7 @@ namespace SocialApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,ImgURL,Description,AppUserId")] Post post)
+        public async Task<IActionResult> Edit(string id, [Bind("Id,Description")] Post post)
         {
             if (id != post.Id)
             {
@@ -151,12 +159,12 @@ namespace SocialApp.Controllers
             {
                 try
                 {
-                    _context.Update(post);
-                    await _context.SaveChangesAsync();
+                    await _postRepository.UpdateAsync(post);
+                
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!PostExists(post.Id))
+                    if (!await _postRepository.Exists(post.Id))
                     {
                         return NotFound();
                     }
@@ -167,7 +175,7 @@ namespace SocialApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AppUserId"] = new SelectList(_context.Users, "Id", "Id", post.AppUserId);
+            ViewData["AppUserId"] = new SelectList(_context.Users, "Id", "Id", post.AuthorProfileId);
             return View(post);
         }
 
@@ -179,9 +187,8 @@ namespace SocialApp.Controllers
                 return NotFound();
             }
 
-            var post = await _context.Post
-                .Include(p => p.AppUser)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var post = await _postRepository.GetAsync(id);
+
             if (post == null)
             {
                 return NotFound();
@@ -196,18 +203,14 @@ namespace SocialApp.Controllers
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             var post = await _context.Post.FindAsync(id);
-            if (post != null)
-            {
-                _context.Post.Remove(post);
-            }
+            
+            await _postRepository.DeleteAsync(id);
+            
 
-            await _context.SaveChangesAsync();
+            
             return RedirectToAction(nameof(Index));
         }
 
-        private bool PostExists(string id)
-        {
-            return _context.Post.Any(e => e.Id == id);
-        }
+       
     }
 }

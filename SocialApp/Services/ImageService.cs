@@ -19,32 +19,39 @@ namespace SocialApp.Services
             _cloudinary = new Cloudinary(CloudinaryURL);
 
         }
-       
+
 
         public async Task<ImageUploadResult> UploadImageAsync(IFormFile file)
         {
-            ImageUploadResult UploadResult = new ImageUploadResult();
+            // Ensure the result is initialized
+            var uploadResult = new ImageUploadResult();
 
-            if (file.Length > 0)
+            // Check if the file is valid
+            if (file != null && file.Length > 0)
             {
-                var stream = file.OpenReadStream();
-
-                var uploadParams = new ImageUploadParams()
+                using (var stream = file.OpenReadStream())
                 {
-                    File = new FileDescription(file.FileName, stream),
-                    UniqueFilename = false,
+                    // Prepare parameters for the image upload
+                    var uploadParams = new ImageUploadParams
+                    {
+                        File = new FileDescription(file.FileName, stream),
+                        UniqueFilename = false,
+                        // TODO: Add image transformation parameters if needed
+                    };
 
-                    //TODO Transform the image before storing
-                };
-
-                
-
-                UploadResult = await _cloudinary.UploadAsync(uploadParams);
-
-             
+                    try
+                    {
+                        // Upload the image to Cloudinary
+                        uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                    }
+                    catch (Exception ex)
+                    {
+                       Console.WriteLine(ex);
+                    }
+                }
             }
 
-            return UploadResult;
+            return uploadResult;
         }
 
         public async Task<DeletionResult> DeleteImageAsync(string id)

@@ -9,12 +9,12 @@ namespace SocialApp.ViewModel
         [Key]
         public string Id { get; set; }
 
-        public IFormFile ImgURL { get; set; }
+        public IFormFile Img { get; set; }
 
         public string Description { get; set; }
 
-        [ForeignKey("AppUser")]
-        public string? AppUserId { get; set; }
+        
+        public int? AuthorProfileId { get; set; }
        
     }
 }

@@ -7,15 +7,23 @@ namespace SocialApp.Models
     {
         //create new unique id on creation
         [Key]  
-        public string? Id { get; set; } = Guid.NewGuid().ToString();
+        public string Id { get; set; }
 
         public string? ImgURL { get; set; }
 
         public string? Description { get; set; }
 
-        [ForeignKey("AppUser")]
-        public string? AppUserId { get; set; }
-        public AppUser? AppUser { get; set; }
+        public int LikesCount { get; set; } = 0;
+
+        public bool Hidden { get; set; } = false;
+
+        [ForeignKey("AuthorProfile")]
+        public int? AuthorProfileId { get; set; }
+        public UserProfile? AuthorProfile { get; set; }
+
+        public IEnumerable<UserProfile> LikedUsers { get; set; } = new HashSet<UserProfile>();
+
+        public IEnumerable<Comment> Comments { get; set; } = new HashSet<Comment>();
 
     }
 }

@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using SocialApp.Data.Enum;
 using SocialApp.Interfaces;
 using SocialApp.Models;
@@ -11,10 +9,12 @@ namespace SocialApp.Controllers
     public class UserProfilesController : Controller
     {
         private readonly IUserProfileRepository _repository;
+        private readonly IImageService _imageService;
 
-        public UserProfilesController(IUserProfileRepository repository)
+        public UserProfilesController(IUserProfileRepository repository, IImageService imageService)
         {
             _repository = repository;
+            _imageService = imageService;
         }
 
         // GET: UserProfiles
@@ -58,9 +58,9 @@ namespace SocialApp.Controllers
 
             var userProfileVM = new UserProfileVM(userProfile);
 
-            List<Interest> interests = Enum.GetValues(typeof(Interest)).Cast<Interest>().ToList();
+            //List<Interest> interests = Enum.GetValues(typeof(Interest)).Cast<Interest>().ToList();
 
-            ViewData["Interests"] = interests;
+            //ViewData["Interests"] = interests;
             return View(userProfileVM);
         }
 
@@ -69,39 +69,57 @@ namespace SocialApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Biography,Major,Interests")] UserProfile userProfile, List<string> selectedInterests)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Biography,IconImg")] UserProfileVM userProfileVM)
         {
-            if (id != userProfile.Id)
+            Console.WriteLine("hitting /userprofiles/edit/id");
+            if (id != userProfileVM.Id)
             {
                 return NotFound();
             }
 
+            UserProfile? userProfile = await _repository.GetAsync(userProfileVM.Id);
 
+            if (userProfile == null)
+            {
+                return NotFound();
+            }
+
+          
             if (ModelState.IsValid)
             {
+                Console.WriteLine("Model is valid");
 
-                userProfile.Interests = selectedInterests
-                .Select(i => Enum.TryParse<Interest>(i, out var interest) ? (Interest?)interest : null)
-                .Where(i => i.HasValue)
-                .Select(i => i.Value)
-                .ToList();
+                //if Image is provided, upload the image and change IconURL, else do nothing
+                // Handle image upload
+                if (userProfileVM.IconImg != null)
+                {
+                    Console.WriteLine("Uploading Img");
+                    try
+                    {
+                        var result = await _imageService.UploadImageAsync(userProfileVM.IconImg);
 
-                try
-                {
-                    await _repository.UpdateAsync(userProfile);
-                    
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!await _repository.UserProfileExists(userProfile.Id))
-                    {
-                        return NotFound();
+                        if (result != null)
+                        {
+                            userProfile.IconURL = result.Url.ToString();
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        throw;
+                        Console.WriteLine($"Image upload failed: {ex.Message}");
+                        ModelState.AddModelError("", "Image upload failed. Please try again.");
+                        return View(userProfileVM);
                     }
-                }
+                    Console.WriteLine("Finished Img upload");
+                }   
+
+                //updates the profile
+
+                userProfile.UserName = userProfileVM.UserName;
+                userProfile.Biography = userProfileVM.Biography;
+
+                await _repository.UpdateAsync(userProfile);
+
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -122,16 +140,16 @@ namespace SocialApp.Controllers
             //    }
             //}
 
-            List<Interest> interests = Enum.GetValues(typeof(Interest)).Cast<Interest>().ToList();
-            ViewData["Interests"] = interests;
+            //List<Interest> interests = Enum.GetValues(typeof(Interest)).Cast<Interest>().ToList();
+            //ViewData["Interests"] = interests;
 
-            var userProfileVM = new UserProfileVM(userProfile);
+           
 
             return View(userProfileVM);
         }
 
 
 
-       
+
     }
 }

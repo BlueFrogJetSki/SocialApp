@@ -10,17 +10,23 @@ namespace SocialApp.ViewModel
        
         public string? UserName { get; set; }
         public string? Biography { get; set; }
-        public Major? Major { get; set; }
-        public IList<Interest>? Interests { get; set; }
+        //public Major? Major { get; set; }
+        //public IList<Interest>? Interests { get; set; }
+
+        public IFormFile? IconImg { get; set; }
+        public string? IconURL { get; set; }
+
 
         public UserProfileVM(UserProfile userProfile)
         {
             Id = userProfile.Id;
             UserName = userProfile.UserName;
             Biography = userProfile.Biography;
-            Major = userProfile.Major;
-            Interests = userProfile.Interests;
+            IconURL = userProfile.IconURL;
+            
         }
+
+        public UserProfileVM() { }
 
 
         

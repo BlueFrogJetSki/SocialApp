@@ -1,4 +1,5 @@
 using dotenv.net;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using SocialApp.Data;
 using SocialApp.Helpers;
@@ -18,7 +19,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<AppUser>(options =>
 {
     options.User.RequireUniqueEmail = true;
-    options.SignIn.RequireConfirmedAccount = true;
+    options.SignIn.RequireConfirmedAccount = false;
 })
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
@@ -26,6 +27,10 @@ builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 builder.Services.AddScoped<IImageService, ImageService>();
 
+//builder.Services.Configure<FormOptions>(options =>
+//{
+//    options.MultipartBodyLengthLimit = 104857600; // Set to a large enough value (e.g., 100 MB)
+//});
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
@@ -45,13 +50,13 @@ else
 }
 app.Use(async (context, next) =>
 {
+    var logger = app.Services.GetRequiredService<ILogger<Program>>();
     try
     {
         await next();
     }
     catch (Exception ex)
     {
-        var logger = app.Services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An unhandled exception occurred.");
         throw; // Re-throw the exception to let the default handler process it
     }
