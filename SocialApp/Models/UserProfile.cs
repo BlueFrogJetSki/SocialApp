@@ -29,5 +29,7 @@ namespace SocialApp.Models
         public AppUser? AppUser { get; set; }
         public IEnumerable<Post> Posts { get; set; } = new HashSet<Post>();
 
+        public ICollection<Story> Stories { get; set; } = new HashSet<Story>();
+
     }
 }

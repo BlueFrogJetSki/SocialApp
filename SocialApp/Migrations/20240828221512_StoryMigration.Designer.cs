@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SocialApp.Data;
 
@@ -11,9 +12,11 @@ using SocialApp.Data;
 namespace SocialApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240828221512_StoryMigration")]
+    partial class StoryMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -336,6 +339,9 @@ namespace SocialApp.Migrations
                     b.Property<string>("PostId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int?>("StoryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -348,6 +354,8 @@ namespace SocialApp.Migrations
                         .HasFilter("[AppUserId] IS NOT NULL");
 
                     b.HasIndex("PostId");
+
+                    b.HasIndex("StoryId");
 
                     b.ToTable("UserProfile");
                 });
@@ -435,7 +443,7 @@ namespace SocialApp.Migrations
             modelBuilder.Entity("SocialApp.Models.Story", b =>
                 {
                     b.HasOne("SocialApp.Models.UserProfile", "AuthorProfile")
-                        .WithMany("Stories")
+                        .WithMany()
                         .HasForeignKey("AuthorProfileId");
 
                     b.Navigation("AuthorProfile");
@@ -450,6 +458,10 @@ namespace SocialApp.Migrations
                     b.HasOne("SocialApp.Models.Post", null)
                         .WithMany("LikedUsers")
                         .HasForeignKey("PostId");
+
+                    b.HasOne("SocialApp.Models.Story", null)
+                        .WithMany("LikedUsers")
+                        .HasForeignKey("StoryId");
 
                     b.Navigation("AppUser");
                 });
@@ -471,11 +483,14 @@ namespace SocialApp.Migrations
                     b.Navigation("LikedUsers");
                 });
 
+            modelBuilder.Entity("SocialApp.Models.Story", b =>
+                {
+                    b.Navigation("LikedUsers");
+                });
+
             modelBuilder.Entity("SocialApp.Models.UserProfile", b =>
                 {
                     b.Navigation("Posts");
-
-                    b.Navigation("Stories");
                 });
 #pragma warning restore 612, 618
         }
