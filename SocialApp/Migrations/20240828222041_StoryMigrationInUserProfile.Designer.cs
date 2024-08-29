@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SocialApp.Data;
 
@@ -11,9 +12,11 @@ using SocialApp.Data;
 namespace SocialApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240828222041_StoryMigrationInUserProfile")]
+    partial class StoryMigrationInUserProfile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -232,9 +235,6 @@ namespace SocialApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AuthorName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("AuthorProfileId")
                         .HasColumnType("int");
 
@@ -250,10 +250,6 @@ namespace SocialApp.Migrations
                     b.Property<string>("PostId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Text")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorProflieId");
@@ -263,29 +259,6 @@ namespace SocialApp.Migrations
                     b.HasIndex("PostId");
 
                     b.ToTable("Comment");
-                });
-
-            modelBuilder.Entity("SocialApp.Models.Like", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("AuthorProfileId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PostId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AuthorProfileId");
-
-                    b.HasIndex("PostId");
-
-                    b.ToTable("Like");
                 });
 
             modelBuilder.Entity("SocialApp.Models.Post", b =>
@@ -363,6 +336,9 @@ namespace SocialApp.Migrations
                     b.Property<string>("IconURL")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PostId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("UserName")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -374,22 +350,9 @@ namespace SocialApp.Migrations
                         .IsUnique()
                         .HasFilter("[AppUserId] IS NOT NULL");
 
+                    b.HasIndex("PostId");
+
                     b.ToTable("UserProfile");
-                });
-
-            modelBuilder.Entity("UserProfileUserProfile", b =>
-                {
-                    b.Property<int>("FollowersId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FollowingId")
-                        .HasColumnType("int");
-
-                    b.HasKey("FollowersId", "FollowingId");
-
-                    b.HasIndex("FollowingId");
-
-                    b.ToTable("UserProfileUserProfile");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -462,21 +425,6 @@ namespace SocialApp.Migrations
                     b.Navigation("Post");
                 });
 
-            modelBuilder.Entity("SocialApp.Models.Like", b =>
-                {
-                    b.HasOne("SocialApp.Models.UserProfile", "AuthorProfile")
-                        .WithMany("Likes")
-                        .HasForeignKey("AuthorProfileId");
-
-                    b.HasOne("SocialApp.Models.Post", "Post")
-                        .WithMany("Likes")
-                        .HasForeignKey("PostId");
-
-                    b.Navigation("AuthorProfile");
-
-                    b.Navigation("Post");
-                });
-
             modelBuilder.Entity("SocialApp.Models.Post", b =>
                 {
                     b.HasOne("SocialApp.Models.UserProfile", "AuthorProfile")
@@ -502,22 +450,11 @@ namespace SocialApp.Migrations
                         .WithOne("UserProfile")
                         .HasForeignKey("SocialApp.Models.UserProfile", "AppUserId");
 
+                    b.HasOne("SocialApp.Models.Post", null)
+                        .WithMany("LikedUsers")
+                        .HasForeignKey("PostId");
+
                     b.Navigation("AppUser");
-                });
-
-            modelBuilder.Entity("UserProfileUserProfile", b =>
-                {
-                    b.HasOne("SocialApp.Models.UserProfile", null)
-                        .WithMany()
-                        .HasForeignKey("FollowersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SocialApp.Models.UserProfile", null)
-                        .WithMany()
-                        .HasForeignKey("FollowingId")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("SocialApp.Models.AppUser", b =>
@@ -534,13 +471,11 @@ namespace SocialApp.Migrations
                 {
                     b.Navigation("Comments");
 
-                    b.Navigation("Likes");
+                    b.Navigation("LikedUsers");
                 });
 
             modelBuilder.Entity("SocialApp.Models.UserProfile", b =>
                 {
-                    b.Navigation("Likes");
-
                     b.Navigation("Posts");
 
                     b.Navigation("Stories");

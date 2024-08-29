@@ -40,5 +40,7 @@ namespace SocialApp.Models
         //Likes made by this user
         public ICollection<Like> Likes { get; set; } = new HashSet<Like>();
 
+        public ICollection<Story> Stories { get; set; } = new HashSet<Story>();
+
     }
 }
