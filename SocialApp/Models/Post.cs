@@ -9,6 +9,13 @@ namespace SocialApp.Models
         [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
+        [Required]
+        [DataType(DataType.DateTime)]
+        public DateTime CreatedAt { get; set; }
+
+        [DataType(DataType.DateTime)]
+        public DateTime UpdatedAt { get; set; }
+
         public string? ImgURL { get; set; }
 
         public string? Description { get; set; }

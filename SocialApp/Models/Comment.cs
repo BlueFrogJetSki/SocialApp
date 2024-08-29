@@ -7,6 +7,14 @@ namespace SocialApp.Models
     {
         [Key]
         public int Id { get; set; }
+
+        [Required]
+        [DataType(DataType.DateTime)]
+        public DateTime CreatedAt { get; set; }
+
+        [DataType(DataType.DateTime)]
+        public DateTime UpdatedAt { get; set; }
+
         public int LikesCount { get; set; } = 0;
 
         [Required(ErrorMessage ="Comment must contain at least 1 character")]
@@ -21,7 +29,7 @@ namespace SocialApp.Models
         public int? AuthorProfileId { get; set; }
         public UserProfile? AuthorProflie { get; set; }
         public string ? AuthorName { get; set; }
-
+        public ICollection<Like> Likes { get; set; } = new HashSet<Like>();
         public ICollection<Comment> SubComments { get; set; } = new List<Comment>();
     }
 }

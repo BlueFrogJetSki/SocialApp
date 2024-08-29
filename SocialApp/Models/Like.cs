@@ -5,8 +5,13 @@ namespace SocialApp.Models
 {
     public class Like
     {
+        //TODO: Decide how to implement likes for different objects
         [Key]
         public int Id { get; set; }
+
+        [Required]
+        [DataType(DataType.DateTime)]
+        public DateTime DateTime { get; set; }
 
         [ForeignKey("AuthorProfile")]
         public int? AuthorProfileId { get; set; }

@@ -20,7 +20,7 @@ namespace SocialApp.Models
         public int? AuthorProfileId { get; set; }
         public UserProfile? AuthorProfile { get; set; }
 
-        //TODO create ICollecion<Like>
+        public ICollection<Like> Likes { get; set; } = new HashSet<Like>();
 
     }
 }

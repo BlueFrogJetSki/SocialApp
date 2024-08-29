@@ -10,6 +10,13 @@ namespace SocialApp.Models
         [Key]
         public int Id { get; set; }
 
+        [Required]
+        [DataType(DataType.DateTime)]
+        public DateTime CreatedAt { get; set; }
+
+        [DataType(DataType.DateTime)]
+        public DateTime UpdatedAt { get; set; }
+
         //Basic info
 
         [Required(ErrorMessage = "Username is required.")]
