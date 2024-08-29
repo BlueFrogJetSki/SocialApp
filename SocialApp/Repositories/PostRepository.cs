@@ -37,14 +37,14 @@ namespace SocialApp.Repositories
         {
             return await _context.Post
                 .Include(p => p.AuthorProfile)
-                .Include(p => p.LikedUsers)
+                .Include(p => p.Likes)
                 .Include(p => p.Comments).FirstOrDefaultAsync(p=> p.Id == id);
         }
 
         public async Task<IEnumerable<Post>> GetListAsync()
         {
             return await _context.Post.Include(p => p.AuthorProfile)
-                .Include(p => p.LikedUsers)
+                .Include(p => p.Likes)
                 .Include(p => p.Comments).ToListAsync();
         }
 
@@ -64,6 +64,12 @@ namespace SocialApp.Repositories
 
             _context.Entry(ExistingPost).CurrentValues.SetValues(post);
 
+            return await SaveChanges();
+        }
+
+        public async Task<bool> CreateAsync(Post post)
+        {
+            await _context.Post.AddAsync(post);
             return await SaveChanges();
         }
     }

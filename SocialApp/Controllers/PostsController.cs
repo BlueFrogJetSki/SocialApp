@@ -19,50 +19,14 @@ namespace SocialApp.Controllers
             _context = context;
             _imageService = imageService;
             _postRepository = repository;
-        }
-
-        // GET: Posts
-        public async Task<IActionResult> Index()
-        {
-            //Initalize DB if it is empty and there is at least one user in the db
-
-            //if (!_context.Post.Any())
-            //{
-            //    Console.WriteLine("Post table empty, initalizing");
-            //    var userID = _context.UserProfile.FirstOrDefaultAsync().Result?.Id;
-            //    var resourcesResult = await _imageService.ListAllImageAsync();
-
-            //    int count = 1;
 
 
-            //    if (resourcesResult.Resources != null && userID != null)
-            //    {
-            //        Console.WriteLine(resourcesResult.Resources);
-            //        foreach (var resource in resourcesResult.Resources)
-            //        {
-            //            Post newPost = new Post()
-            //            {
-            //                ImgURL = resource.Url.ToString(),
-            //                Description = $"image {count}",
-            //                AuthorProfileId = userID
-
-            //            };
-            //            _context.Post.Add(newPost);
-            //            _context.SaveChanges();
-
-            //            count++;
-            //        }
-            //    }
-            //}
-
-            var posts = await _postRepository.GetListAsync();
-
-            return View(posts);
         }
 
         // GET: Posts/Details/5
         public async Task<IActionResult> Details(string id)
         {
+
             if (id == null)
             {
                 return NotFound();
@@ -81,7 +45,6 @@ namespace SocialApp.Controllers
         // GET: Posts/Create
         public IActionResult Create()
         {
-            ViewData["AppUserId"] = new SelectList(_context.Users, "Id", "Id");
             return View();
         }
 
@@ -119,7 +82,6 @@ namespace SocialApp.Controllers
 
             }
 
-            ViewData["AppUserId"] = new SelectList(_context.Users, "Id", "Id", post.AuthorProfileId);
 
             return View(post);
         }
@@ -139,7 +101,6 @@ namespace SocialApp.Controllers
                 return NotFound();
             }
 
-            ViewData["AppUserId"] = new SelectList(_context.Users, "Id", "Id", post.AuthorProfileId);
             return View(post);
         }
 
@@ -175,7 +136,7 @@ namespace SocialApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["AppUserId"] = new SelectList(_context.Users, "Id", "Id", post.AuthorProfileId);
+           
             return View(post);
         }
 

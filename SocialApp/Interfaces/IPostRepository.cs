@@ -10,6 +10,7 @@ namespace SocialApp.Interfaces
         public Task<bool> DeleteAsync(string id);
         public Task<bool> Exists(string id);
         public Task<bool> SaveChanges();
+        public Task<bool> CreateAsync(Post post);
 
     }
 }

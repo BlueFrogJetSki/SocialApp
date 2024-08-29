@@ -6,8 +6,8 @@ namespace SocialApp.Models
     public class Post
     {
         //create new unique id on creation
-        [Key]  
-        public string Id { get; set; }
+        [Key]
+        public string Id { get; set; } = Guid.NewGuid().ToString();
 
         public string? ImgURL { get; set; }
 
@@ -21,9 +21,9 @@ namespace SocialApp.Models
         public int? AuthorProfileId { get; set; }
         public UserProfile? AuthorProfile { get; set; }
 
-        public IEnumerable<UserProfile> LikedUsers { get; set; } = new HashSet<UserProfile>();
+        public ICollection<Like> Likes { get; set; } = new HashSet<Like>();
 
-        public IEnumerable<Comment> Comments { get; set; } = new HashSet<Comment>();
+        public ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();
 
     }
 }

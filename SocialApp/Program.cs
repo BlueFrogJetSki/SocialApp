@@ -23,9 +23,11 @@ builder.Services.AddDefaultIdentity<AppUser>(options =>
 })
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
-builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
 
 //builder.Services.Configure<FormOptions>(options =>
 //{

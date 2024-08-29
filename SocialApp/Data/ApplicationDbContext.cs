@@ -13,6 +13,10 @@ namespace SocialApp.Data
         public DbSet<SocialApp.Models.UserProfile> UserProfile { get; set; } = default!;
         public DbSet<SocialApp.Models.Post> Post { get; set; } = default!;
 
+        public DbSet<SocialApp.Models.Comment> Comment { get; set; } = default!;
+        public DbSet<SocialApp.Models.Like> Like { get; set; } = default!;
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

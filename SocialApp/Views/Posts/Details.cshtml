@@ -4,42 +4,149 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
 
-<div>
-    <h4>Post</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImgURL)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImgURL)
-        </dd>
+<!--- \\\\\\\Post-->
+@{
+    var author = Model.AuthorProfile;
+}
 
-         <dt class = "col-sm-2">
-           Image
-        </dt>
+<div class="card gedf-card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="mr-2">
+                    <img class="rounded-circle" width="45" src="@author?.IconURL" alt="User Icon">
+                </div>
+                <div class="ml-2">
+                    <div class="h5 m-0">@author?.UserName</div>
 
-        <dd class = "col-sm-10">
-            <img src="@Model.ImgURL"/>
-        </dd>
-        
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AuthorProfile)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AuthorProfileId)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+                </div>
+            </div>
+            <div>
+                <div class="dropdown">
+                    <button class="btn btn-link dropdown-toggle" type="button" id="gedf-drop1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-ellipsis-h"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
+                        <div class="h6 dropdown-header">Configuration</div>
+                        <a class="dropdown-item" href="#">Save</a>
+                        <a class="dropdown-item" href="#">Hide</a>
+                        <a class="dropdown-item" href="#">Report</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="card-body">
+
+
+        <img class="img-fluid" src="@Model.ImgURL" alt="Image">
+    </div>
+    <div class="card-text">
+        <b>@author?.UserName</b> @Model.Description
+
+    </div>
+    <div class="card-footer">
+        <div class="card-footer">
+            <form method="post" asp-controller="Likes" asp-action="Create">
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" name="PostId" value="@Model.Id" />
+                <input type="hidden" name="AuthorProfileId" value="@author.Id" />
+
+                <button type="submit" class="card-link">
+                    @Model.Likes.Count() likes
+                </button>
+            </form>
+            <a asp-controller="Posts" asp-action="Details" asp-route-id="@Model.Id" class="card-link"><i class="fa fa-comment"></i> Comment</a>
+            <a href="#" class="card-link"><i class="fa fa-mail-forward"></i> Share</a>
+        </div>
+    </div>
+    <form asp-controller="Comments" asp-action="Create" method="post">
+        <input type="hidden" name="postId" value="@Model.Id" />
+
+        @*TODO: get authorProfileId from logged in user *@
+        <input type="hidden" name="authorProfileId" value="@author.Id" />
+
+        <div class="card-body">
+            <div class="tab-content" id="myTabContent">
+                <!-- Post Tab -->
+                <div class="tab-pane fade show active" id="posts" role="tabpanel" aria-labelledby="posts-tab">
+                    <div class="form-group">
+                        <label for="Text">Comment</label>
+                        <textarea name="Text" class="form-control" id="Text" rows="4"></textarea>
+                    </div>
+                </div>
+
+             
+
+            <!-- Privacy Options -->
+            <div class="btn-toolbar justify-content-between">
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">Share</button>
+                </div>
+                <div class="btn-group">
+                    <button id="btnGroupDrop1" type="button" class="btn btn-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-globe"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="btnGroupDrop1">
+                        <a class="dropdown-item" href="#" onclick="setPrivacy('public')"><i class="fa fa-globe"></i> Public</a>
+                        <a class="dropdown-item" href="#" onclick="setPrivacy('friends')"><i class="fa fa-users"></i> Friends</a>
+                        <a class="dropdown-item" href="#" onclick="setPrivacy('private')"><i class="fa fa-user"></i> Just me</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hidden Input for Privacy -->
+            <input type="hidden" id="privacy" name="privacy" value="public">
+        </div>
+        </div>
+    </form>
+
+
+
+
+        @foreach(var comment in Model.Comments)
+        {
+            @* main comment *@
+            <div class="card-body" style="margin-bottom: 5px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                <p> <b>@comment.AuthorName</b> @comment?.Text</p>
+
+            @* sub comments *@
+            @foreach (var subComment in comment?.SubComments)
+            {
+                <div class="card-text">
+
+                    <p> <b>@subComment.AuthorName</b> @subComment?.Text</p>
+                </div>
+            }
+            @* Reply To Comment *@
+            <form asp-controller="Comments" asp-action="Reply" method="post">
+                <input type="hidden" name="parentCommentId" value="@comment.Id" />
+
+                @*TODO: get authorProfileId from logged in user *@
+                <input type="hidden" name="authorProfileId" value="@author.Id" />
+                <div class="card-body">
+                    <div class="tab-content" id="myTabContent" style="display: flex; align-items: center; gap: 10px;">
+                        <!-- Post Tab -->
+                        <div class="form-group" style="flex: 1;">
+                            <input name="Text" class="form-control" id="Text" rows="4" style="width: 100%; box-sizing: border-box;">
+                        </div>
+                        <div class="btn-group" style="flex-shrink: 0;">
+                            <button type="submit" class="btn btn-primary">Reply</button>
+                        </div>
+                    </div>
+                </div>
+
+
+            </form>
+            </div>
+
+          
+               
+           
+
+        }
+    </div>
 </div>
