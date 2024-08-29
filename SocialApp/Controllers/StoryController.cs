@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using SocialApp.Data;
 using SocialApp.DataTransferObject;
 using SocialApp.Models;
@@ -31,9 +32,12 @@ namespace SocialApp.Controllers
             return Ok(story); // Returns a 200 OK with the story serialized to JSON
         }
 
-        [HttpPost]
+        [HttpPost("create")]
+        [Authorize]
         public async Task<ActionResult<Story>> Create(StoryDTO dto)
         {
+            var cookieValue = HttpContext.Request.Cookies[".AspNetCore.Identity.Application"];
+            
             // Validate the input data
             if (!ModelState.IsValid)
             {
@@ -62,11 +66,12 @@ namespace SocialApp.Controllers
 
         [HttpPost]
         [HttpPost("delete/{id}")]
-        public async Task<ActionResult<Story>> Delete([FromRoute]int id)
+        [Authorize]
+        public async Task<ActionResult<Story>> Delete([FromRoute] int id)
         {
             var targetStory = await _context.Story.FirstOrDefaultAsync(s => s.Id == id);
 
-            if (targetStory == null )
+            if (targetStory == null)
             {
                 return NotFound();
             }

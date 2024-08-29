@@ -20,6 +20,8 @@ namespace SocialApp.DataTransferObject
 
         public int? AuthorProfileId { get; set; }
 
+        public StoryDTO() { }
+
         //Copy constructor
         public StoryDTO(Story story)
         {

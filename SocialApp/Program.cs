@@ -22,6 +22,9 @@ builder.Services.AddDefaultIdentity<AppUser>(options =>
     options.SignIn.RequireConfirmedAccount = false;
 })
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+//Uncomment and remove AddControllerWithViews() when fully migrated to api controllers
+//builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
