@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.Elfie.Model.Strings;
 using Microsoft.EntityFrameworkCore;
 using SocialApp.Data;
 using SocialApp.Interfaces;
@@ -13,12 +14,14 @@ namespace SocialApp.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IImageService _imageService;
         private readonly IPostRepository _postRepository;
+        private readonly ILikeService _likeService;
 
-        public PostsController(IPostRepository repository, IImageService imageService, ApplicationDbContext context)
+        public PostsController(IPostRepository repository, IImageService imageService, ApplicationDbContext context, ILikeService likeService)
         {
             _context = context;
             _imageService = imageService;
             _postRepository = repository;
+            _likeService = likeService;
 
 
         }
@@ -172,6 +175,20 @@ namespace SocialApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-       
+        [HttpPost]
+        public async Task<string> Like(string id)
+        {
+            var post = await _postRepository.GetAsync(id);
+            if (post != null)
+            {
+                _likeService.LikeItem(post, post.AuthorProfileId);
+
+                return "Post was liked";
+            }
+
+            return $"Like failed";
+        }
+
+
     }
 }

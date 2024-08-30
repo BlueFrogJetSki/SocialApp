@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SocialApp.Migrations
 {
     /// <inheritdoc />
-    public partial class InitalMigration : Migration
+    public partial class DBResetMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -157,34 +157,15 @@ namespace SocialApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Post",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ImgURL = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Post", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Post_AspNetUsers_AppUserId",
-                        column: x => x.AppUserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "UserProfile",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     Biography = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
-                    Major = table.Column<int>(type: "int", nullable: true),
-                    Interests = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IconURL = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
@@ -194,6 +175,147 @@ namespace SocialApp.Migrations
                         name: "FK_UserProfile_AspNetUsers_AppUserId",
                         column: x => x.AppUserId,
                         principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Post",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ImgURL = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Hidden = table.Column<bool>(type: "bit", nullable: false),
+                    AuthorProfileId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    LikesCount = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Post", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Post_UserProfile_AuthorProfileId",
+                        column: x => x.AuthorProfileId,
+                        principalTable: "UserProfile",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Story",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    DateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsHidden = table.Column<bool>(type: "bit", nullable: false),
+                    ImgURL = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LikesCount = table.Column<int>(type: "int", nullable: false),
+                    AuthorProfileId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Story", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Story_UserProfile_AuthorProfileId",
+                        column: x => x.AuthorProfileId,
+                        principalTable: "UserProfile",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserProfileUserProfile",
+                columns: table => new
+                {
+                    FollowersId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FollowingId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserProfileUserProfile", x => new { x.FollowersId, x.FollowingId });
+                    table.ForeignKey(
+                        name: "FK_UserProfileUserProfile_UserProfile_FollowersId",
+                        column: x => x.FollowersId,
+                        principalTable: "UserProfile",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserProfileUserProfile_UserProfile_FollowingId",
+                        column: x => x.FollowingId,
+                        principalTable: "UserProfile",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Comment",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LikesCount = table.Column<int>(type: "int", nullable: false),
+                    Text = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PostId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    AuthorProfileId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AuthorProflieId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    AuthorName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CommentId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Comment", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Comment_Comment_CommentId",
+                        column: x => x.CommentId,
+                        principalTable: "Comment",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Comment_Post_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Post",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Comment_UserProfile_AuthorProflieId",
+                        column: x => x.AuthorProflieId,
+                        principalTable: "UserProfile",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Like",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    DateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AuthorProfileId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    EntityType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EntityId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CommentId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    PostId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    StoryId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Like", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Like_Comment_CommentId",
+                        column: x => x.CommentId,
+                        principalTable: "Comment",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Like_Post_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Post",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Like_Story_StoryId",
+                        column: x => x.StoryId,
+                        principalTable: "Story",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Like_UserProfile_AuthorProfileId",
+                        column: x => x.AuthorProfileId,
+                        principalTable: "UserProfile",
                         principalColumn: "Id");
                 });
 
@@ -237,9 +359,49 @@ namespace SocialApp.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Post_AppUserId",
+                name: "IX_Comment_AuthorProflieId",
+                table: "Comment",
+                column: "AuthorProflieId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Comment_CommentId",
+                table: "Comment",
+                column: "CommentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Comment_PostId",
+                table: "Comment",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Like_AuthorProfileId",
+                table: "Like",
+                column: "AuthorProfileId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Like_CommentId",
+                table: "Like",
+                column: "CommentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Like_PostId",
+                table: "Like",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Like_StoryId",
+                table: "Like",
+                column: "StoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Post_AuthorProfileId",
                 table: "Post",
-                column: "AppUserId");
+                column: "AuthorProfileId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Story_AuthorProfileId",
+                table: "Story",
+                column: "AuthorProfileId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserProfile_AppUserId",
@@ -247,6 +409,11 @@ namespace SocialApp.Migrations
                 column: "AppUserId",
                 unique: true,
                 filter: "[AppUserId] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserProfileUserProfile_FollowingId",
+                table: "UserProfileUserProfile",
+                column: "FollowingId");
         }
 
         /// <inheritdoc />
@@ -268,13 +435,25 @@ namespace SocialApp.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "Like");
+
+            migrationBuilder.DropTable(
+                name: "UserProfileUserProfile");
+
+            migrationBuilder.DropTable(
+                name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Comment");
+
+            migrationBuilder.DropTable(
+                name: "Story");
+
+            migrationBuilder.DropTable(
                 name: "Post");
 
             migrationBuilder.DropTable(
                 name: "UserProfile");
-
-            migrationBuilder.DropTable(
-                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

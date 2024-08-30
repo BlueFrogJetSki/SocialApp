@@ -17,12 +17,12 @@ namespace SocialApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(string postId, int authorProfileId, [Bind("Text")] Comment comment)
+        public async Task<IActionResult> Create(string postId, string authorProfileId, [Bind("Text")] Comment comment)
         {
 
             if (ModelState.IsValid)
             {
-                var author = await _context.UserProfile.FirstOrDefaultAsync(p => p.Id == authorProfileId);
+                var author = await _context.UserProfile.FirstOrDefaultAsync(user => user.Id == authorProfileId);
 
                 if (author != null)
                 {
@@ -41,7 +41,7 @@ namespace SocialApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Reply(int parentCommentId, int authorProfileId, [Bind("Text")] Comment comment)
+        public async Task<IActionResult> Reply(string parentCommentId, string authorProfileId, [Bind("Text")] Comment comment)
         {
             var author = await _context.UserProfile.FirstOrDefaultAsync(p => p.Id == authorProfileId);
             var parentComment = await _context.Comment.FirstOrDefaultAsync(c => c.Id == parentCommentId);

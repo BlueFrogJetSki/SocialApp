@@ -67,7 +67,7 @@ namespace SocialApp.Controllers
         [HttpPost]
         [HttpPost("delete/{id}")]
         [Authorize]
-        public async Task<ActionResult<Story>> Delete([FromRoute] int id)
+        public async Task<ActionResult<Story>> Delete([FromRoute] string id)
         {
             var targetStory = await _context.Story.FirstOrDefaultAsync(s => s.Id == id);
 

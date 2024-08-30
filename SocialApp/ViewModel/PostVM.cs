@@ -14,7 +14,7 @@ namespace SocialApp.ViewModel
         public string Description { get; set; }
 
         
-        public int? AuthorProfileId { get; set; }
+        public string? AuthorProfileId { get; set; }
        
     }
 }

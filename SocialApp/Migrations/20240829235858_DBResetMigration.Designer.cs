@@ -12,8 +12,8 @@ using SocialApp.Data;
 namespace SocialApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240823220803_InitalMigration")]
-    partial class InitalMigration
+    [Migration("20240829235858_DBResetMigration")]
+    partial class DBResetMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -227,34 +227,155 @@ namespace SocialApp.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("SocialApp.Models.Comment", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AuthorName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AuthorProfileId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AuthorProflieId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CommentId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LikesCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PostId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorProflieId");
+
+                    b.HasIndex("CommentId");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("Comment");
+                });
+
+            modelBuilder.Entity("SocialApp.Models.Like", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AuthorProfileId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CommentId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EntityId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PostId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("StoryId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorProfileId");
+
+                    b.HasIndex("CommentId");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("StoryId");
+
+                    b.ToTable("Like");
+                });
+
             modelBuilder.Entity("SocialApp.Models.Post", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("AppUserId")
+                    b.Property<string>("AuthorProfileId")
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("Hidden")
+                        .HasColumnType("bit");
+
                     b.Property<string>("ImgURL")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("LikesCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AppUserId");
+                    b.HasIndex("AuthorProfileId");
 
                     b.ToTable("Post");
                 });
 
-            modelBuilder.Entity("SocialApp.Models.UserProfile", b =>
+            modelBuilder.Entity("SocialApp.Models.Story", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AuthorProfileId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImgURL")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsHidden")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LikesCount")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorProfileId");
+
+                    b.ToTable("Story");
+                });
+
+            modelBuilder.Entity("SocialApp.Models.UserProfile", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AppUserId")
                         .HasColumnType("nvarchar(450)");
@@ -263,11 +384,14 @@ namespace SocialApp.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.Property<string>("Interests")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IconURL")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("Major")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -281,6 +405,21 @@ namespace SocialApp.Migrations
                         .HasFilter("[AppUserId] IS NOT NULL");
 
                     b.ToTable("UserProfile");
+                });
+
+            modelBuilder.Entity("UserProfileUserProfile", b =>
+                {
+                    b.Property<string>("FollowersId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FollowingId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("FollowersId", "FollowingId");
+
+                    b.HasIndex("FollowingId");
+
+                    b.ToTable("UserProfileUserProfile");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -334,13 +473,63 @@ namespace SocialApp.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SocialApp.Models.Comment", b =>
+                {
+                    b.HasOne("SocialApp.Models.UserProfile", "AuthorProflie")
+                        .WithMany()
+                        .HasForeignKey("AuthorProflieId");
+
+                    b.HasOne("SocialApp.Models.Comment", null)
+                        .WithMany("SubComments")
+                        .HasForeignKey("CommentId");
+
+                    b.HasOne("SocialApp.Models.Post", "Post")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId");
+
+                    b.Navigation("AuthorProflie");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("SocialApp.Models.Like", b =>
+                {
+                    b.HasOne("SocialApp.Models.UserProfile", "AuthorProfile")
+                        .WithMany("Likes")
+                        .HasForeignKey("AuthorProfileId");
+
+                    b.HasOne("SocialApp.Models.Comment", null)
+                        .WithMany("Likes")
+                        .HasForeignKey("CommentId");
+
+                    b.HasOne("SocialApp.Models.Post", null)
+                        .WithMany("Likes")
+                        .HasForeignKey("PostId");
+
+                    b.HasOne("SocialApp.Models.Story", null)
+                        .WithMany("Likes")
+                        .HasForeignKey("StoryId");
+
+                    b.Navigation("AuthorProfile");
+                });
+
             modelBuilder.Entity("SocialApp.Models.Post", b =>
                 {
-                    b.HasOne("SocialApp.Models.AppUser", "AppUser")
-                        .WithMany()
-                        .HasForeignKey("AppUserId");
+                    b.HasOne("SocialApp.Models.UserProfile", "AuthorProfile")
+                        .WithMany("Posts")
+                        .HasForeignKey("AuthorProfileId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
-                    b.Navigation("AppUser");
+                    b.Navigation("AuthorProfile");
+                });
+
+            modelBuilder.Entity("SocialApp.Models.Story", b =>
+                {
+                    b.HasOne("SocialApp.Models.UserProfile", "AuthorProfile")
+                        .WithMany("Stories")
+                        .HasForeignKey("AuthorProfileId");
+
+                    b.Navigation("AuthorProfile");
                 });
 
             modelBuilder.Entity("SocialApp.Models.UserProfile", b =>
@@ -352,9 +541,52 @@ namespace SocialApp.Migrations
                     b.Navigation("AppUser");
                 });
 
+            modelBuilder.Entity("UserProfileUserProfile", b =>
+                {
+                    b.HasOne("SocialApp.Models.UserProfile", null)
+                        .WithMany()
+                        .HasForeignKey("FollowersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SocialApp.Models.UserProfile", null)
+                        .WithMany()
+                        .HasForeignKey("FollowingId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SocialApp.Models.AppUser", b =>
                 {
                     b.Navigation("UserProfile");
+                });
+
+            modelBuilder.Entity("SocialApp.Models.Comment", b =>
+                {
+                    b.Navigation("Likes");
+
+                    b.Navigation("SubComments");
+                });
+
+            modelBuilder.Entity("SocialApp.Models.Post", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("Likes");
+                });
+
+            modelBuilder.Entity("SocialApp.Models.Story", b =>
+                {
+                    b.Navigation("Likes");
+                });
+
+            modelBuilder.Entity("SocialApp.Models.UserProfile", b =>
+                {
+                    b.Navigation("Likes");
+
+                    b.Navigation("Posts");
+
+                    b.Navigation("Stories");
                 });
 #pragma warning restore 612, 618
         }

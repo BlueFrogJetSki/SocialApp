@@ -5,8 +5,9 @@ namespace SocialApp.Models
 {
     public class Comment
     {
+        // It is initialized with a new GUID to ensure uniqueness.
         [Key]
-        public int Id { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString();
 
         [Required]
         [DataType(DataType.DateTime)]
@@ -26,7 +27,7 @@ namespace SocialApp.Models
 
 
         [ForeignKey("AuthorProfile")]
-        public int? AuthorProfileId { get; set; }
+        public string? AuthorProfileId { get; set; }
         public UserProfile? AuthorProflie { get; set; }
         public string ? AuthorName { get; set; }
         public ICollection<Like> Likes { get; set; } = new HashSet<Like>();

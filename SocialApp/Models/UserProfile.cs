@@ -7,8 +7,9 @@ namespace SocialApp.Models
 {
     public class UserProfile
     {
+        // It is initialized with a new GUID to ensure uniqueness.
         [Key]
-        public int Id { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString();
 
         [Required]
         [DataType(DataType.DateTime)]

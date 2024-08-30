@@ -18,8 +18,6 @@ namespace SocialApp.Controllers
             _imageService = imageService;
             _postRepository = repository;
 
-
-
         }
 
         public async Task<ActionResult> Index()

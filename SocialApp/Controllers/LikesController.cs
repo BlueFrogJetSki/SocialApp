@@ -16,13 +16,13 @@ namespace SocialApp.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(string postId, int authorProfileId)
+        public async Task<IActionResult> Create(string postId, string authorProfileId)
         {
 
             if (ModelState.IsValid)
             {
                 var existingLike = await _context.Like
-                .FirstOrDefaultAsync(l => l.AuthorProfileId == authorProfileId && l.PostId == postId);
+                .FirstOrDefaultAsync(l => l.AuthorProfileId == authorProfileId && l.EntityId == postId);
 
                 if (existingLike == null)
                 {
@@ -30,7 +30,7 @@ namespace SocialApp.Controllers
                     {
 
                         AuthorProfileId = authorProfileId,
-                        PostId = postId
+                        EntityId = postId
                     };
                     await _context.Like.AddAsync(newLike);
                     await _context.SaveChangesAsync();

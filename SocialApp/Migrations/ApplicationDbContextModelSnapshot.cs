@@ -226,23 +226,23 @@ namespace SocialApp.Migrations
 
             modelBuilder.Entity("SocialApp.Models.Comment", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AuthorName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("AuthorProfileId")
-                        .HasColumnType("int");
+                    b.Property<string>("AuthorProfileId")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("AuthorProflieId")
-                        .HasColumnType("int");
+                    b.Property<string>("AuthorProflieId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("CommentId")
-                        .HasColumnType("int");
+                    b.Property<string>("CommentId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("LikesCount")
                         .HasColumnType("int");
@@ -253,6 +253,9 @@ namespace SocialApp.Migrations
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -267,23 +270,41 @@ namespace SocialApp.Migrations
 
             modelBuilder.Entity("SocialApp.Models.Like", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("AuthorProfileId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("AuthorProfileId")
-                        .HasColumnType("int");
+                    b.Property<string>("CommentId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EntityId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PostId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("StoryId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorProfileId");
 
+                    b.HasIndex("CommentId");
+
                     b.HasIndex("PostId");
+
+                    b.HasIndex("StoryId");
 
                     b.ToTable("Like");
                 });
@@ -293,8 +314,11 @@ namespace SocialApp.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int?>("AuthorProfileId")
-                        .HasColumnType("int");
+                    b.Property<string>("AuthorProfileId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -308,6 +332,9 @@ namespace SocialApp.Migrations
                     b.Property<int>("LikesCount")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AuthorProfileId");
@@ -317,14 +344,11 @@ namespace SocialApp.Migrations
 
             modelBuilder.Entity("SocialApp.Models.Story", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("AuthorProfileId")
-                        .HasColumnType("int");
+                    b.Property<string>("AuthorProfileId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("DateTime")
                         .HasColumnType("datetime2");
@@ -347,11 +371,8 @@ namespace SocialApp.Migrations
 
             modelBuilder.Entity("SocialApp.Models.UserProfile", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AppUserId")
                         .HasColumnType("nvarchar(450)");
@@ -360,8 +381,14 @@ namespace SocialApp.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("IconURL")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -379,11 +406,11 @@ namespace SocialApp.Migrations
 
             modelBuilder.Entity("UserProfileUserProfile", b =>
                 {
-                    b.Property<int>("FollowersId")
-                        .HasColumnType("int");
+                    b.Property<string>("FollowersId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("FollowingId")
-                        .HasColumnType("int");
+                    b.Property<string>("FollowingId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("FollowersId", "FollowingId");
 
@@ -468,13 +495,19 @@ namespace SocialApp.Migrations
                         .WithMany("Likes")
                         .HasForeignKey("AuthorProfileId");
 
-                    b.HasOne("SocialApp.Models.Post", "Post")
+                    b.HasOne("SocialApp.Models.Comment", null)
+                        .WithMany("Likes")
+                        .HasForeignKey("CommentId");
+
+                    b.HasOne("SocialApp.Models.Post", null)
                         .WithMany("Likes")
                         .HasForeignKey("PostId");
 
-                    b.Navigation("AuthorProfile");
+                    b.HasOne("SocialApp.Models.Story", null)
+                        .WithMany("Likes")
+                        .HasForeignKey("StoryId");
 
-                    b.Navigation("Post");
+                    b.Navigation("AuthorProfile");
                 });
 
             modelBuilder.Entity("SocialApp.Models.Post", b =>
@@ -527,6 +560,8 @@ namespace SocialApp.Migrations
 
             modelBuilder.Entity("SocialApp.Models.Comment", b =>
                 {
+                    b.Navigation("Likes");
+
                     b.Navigation("SubComments");
                 });
 
@@ -534,6 +569,11 @@ namespace SocialApp.Migrations
                 {
                     b.Navigation("Comments");
 
+                    b.Navigation("Likes");
+                });
+
+            modelBuilder.Entity("SocialApp.Models.Story", b =>
+                {
                     b.Navigation("Likes");
                 });
 

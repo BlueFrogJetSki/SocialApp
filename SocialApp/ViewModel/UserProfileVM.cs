@@ -6,7 +6,7 @@ namespace SocialApp.ViewModel
 {
     public class UserProfileVM 
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
        
         public string? UserName { get; set; }
         public string? Biography { get; set; }

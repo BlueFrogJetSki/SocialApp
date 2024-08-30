@@ -25,7 +25,7 @@ namespace SocialApp.Controllers
         }
 
         // GET: UserProfiles/Details/5 
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(string id)
         {
             if (!await _repository.UserProfileExists(id))
             {
@@ -47,7 +47,7 @@ namespace SocialApp.Controllers
 
 
         // GET: UserProfiles/Edit/5
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(string id)
         {
             var userProfile = await _repository.GetAsync(id);
 
@@ -69,7 +69,7 @@ namespace SocialApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Biography,IconImg")] UserProfileVM userProfileVM)
+        public async Task<IActionResult> Edit(string id, [Bind("Id,UserName,Biography,IconImg")] UserProfileVM userProfileVM)
         {
             Console.WriteLine("hitting /userprofiles/edit/id");
             if (id != userProfileVM.Id)
