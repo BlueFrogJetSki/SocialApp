@@ -31,6 +31,7 @@ builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection(
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<ILikeService, LikeService>();
 
 //builder.Services.Configure<FormOptions>(options =>
 //{

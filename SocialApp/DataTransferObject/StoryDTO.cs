@@ -18,7 +18,7 @@ namespace SocialApp.DataTransferObject
 
         public int LikesCount { get; set; } = 0;
 
-        public int? AuthorProfileId { get; set; }
+        public string? AuthorProfileId { get; set; }
 
         public StoryDTO() { }
 

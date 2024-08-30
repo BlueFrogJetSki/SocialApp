@@ -33,7 +33,7 @@ namespace SocialAppTests
             // Seed with initial data
             _context.UserProfile.Add(new UserProfile
             {
-                Id = 1,
+                Id = "1",
                 UserName = "testuser",
                 Biography = "Test biography",
                 IconURL = "http://example.com/icon.png"
@@ -45,7 +45,7 @@ namespace SocialAppTests
         public async Task GetAsync_ShouldReturnUserProfile_WhenIdExists()
         {
             // Arrange
-            int testId = 1;
+            string testId = "1";
 
             // Act
             var result = await _repository.GetAsync(testId);
@@ -59,7 +59,7 @@ namespace SocialAppTests
         public async Task GetAsync_ShouldReturnNull_WhenIdDoesNotExist()
         {
             // Arrange
-            int testId = 999;
+            string testId = "999";
 
             // Act
             var result = await _repository.GetAsync(testId);
@@ -84,7 +84,7 @@ namespace SocialAppTests
             // Arrange
             var userProfileToUpdate = new UserProfile
             {
-                Id = 1,
+                Id = "1",
                 UserName = "updateduser",
                 Biography = "Updated biography",
                 IconURL = "http://example.com/newicon.png"
@@ -96,7 +96,7 @@ namespace SocialAppTests
             // Assert
             Assert.IsTrue(result);
 
-            var updatedProfile = await _repository.GetAsync(1);
+            var updatedProfile = await _repository.GetAsync("1");
             Assert.AreEqual("updateduser", updatedProfile?.UserName);
         }
 
@@ -106,7 +106,7 @@ namespace SocialAppTests
             // Arrange
             var userProfileToUpdate = new UserProfile
             {
-                Id = 999,
+                Id = "999",
                 UserName = "nonexistentuser"
             };
 
@@ -121,7 +121,7 @@ namespace SocialAppTests
         public async Task UserProfileExists_ShouldReturnTrue_WhenIdExists()
         {
             // Arrange
-            int testId = 1;
+            string testId = "1";
 
             // Act
             var result = await _repository.UserProfileExists(testId);
@@ -134,7 +134,7 @@ namespace SocialAppTests
         public async Task UserProfileExists_ShouldReturnFalse_WhenIdDoesNotExist()
         {
             // Arrange
-            int testId = 999;
+            string testId = "999";
 
             // Act
             var result = await _repository.UserProfileExists(testId);

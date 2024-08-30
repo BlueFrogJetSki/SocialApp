@@ -14,7 +14,7 @@ namespace SocialApp.Repositories
             _context = context;
         }
 
-        public async Task<UserProfile?> GetAsync(int id)
+        public async Task<UserProfile?> GetAsync(string id)
         {
             if (!await UserProfileExists(id)) return null;
 
@@ -43,7 +43,7 @@ namespace SocialApp.Repositories
 
         }
 
-        public async Task<bool> UserProfileExists(int id)
+        public async Task<bool> UserProfileExists(string id)
         {
             UserProfile? profile = await _context.UserProfile.FindAsync(id);
 
