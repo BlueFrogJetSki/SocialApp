@@ -1,14 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.CodeAnalysis.Elfie.Model.Strings;
 using Microsoft.EntityFrameworkCore;
 using SocialApp.Data;
+using SocialApp.DataTransferObject;
 using SocialApp.Interfaces;
 using SocialApp.Models;
 using SocialApp.ViewModel;
 
 namespace SocialApp.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class PostsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -23,6 +24,59 @@ namespace SocialApp.Controllers
             _postRepository = repository;
             _likeService = likeService;
 
+
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> Index()
+        {
+            //Initialize DB if it is empty
+
+            //if (!_context.Post.Any())
+            //{
+            //    var user = _context.UserProfile.FirstOrDefaultAsync().Result;
+
+            //    var resourcesResult = await _imageService.ListAllImageAsync();
+            //    Console.WriteLine(resourcesResult);
+            //    int count = 1;
+            //    if (resourcesResult.Resources != null && user != null)
+            //    {
+            //        Console.WriteLine(resourcesResult.Resources);
+            //        foreach (var resource in resourcesResult.Resources)
+            //        {
+            //            Post newPost = new Post()
+            //            {
+
+            //                ImgURL = resource.Url.ToString(),
+            //                Description = $"image {count}",
+            //                AuthorProfileId = user.Id,
+
+            //            };
+
+            //            //add comments to posts
+            //            newPost.Comments.Add(new Comment
+            //            {
+            //                Text = $"Very cool post {user.UserName}",
+            //                PostId = newPost.Id,
+            //                AuthorProfileId = user.Id,
+            //                AuthorName = user.UserName,
+            //            });
+
+            //            _context.Post.Add(newPost);
+            //            _context.SaveChanges();
+
+            //            count++;
+            //        }
+            //    }
+            //}
+            var posts = await _postRepository.GetListAsync();
+            var result = new List<PostDTO>();
+            foreach (var p in posts)
+            {
+                var pDTO = new PostDTO(p);
+                result.Add(pDTO);
+            }
+            return Ok(result); // Return posts as JSON
 
         }
 
@@ -124,7 +178,7 @@ namespace SocialApp.Controllers
                 try
                 {
                     await _postRepository.UpdateAsync(post);
-                
+
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -139,7 +193,7 @@ namespace SocialApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-           
+
             return View(post);
         }
 
@@ -167,11 +221,11 @@ namespace SocialApp.Controllers
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             var post = await _context.Post.FindAsync(id);
-            
-            await _postRepository.DeleteAsync(id);
-            
 
-            
+            await _postRepository.DeleteAsync(id);
+
+
+
             return RedirectToAction(nameof(Index));
         }
 
