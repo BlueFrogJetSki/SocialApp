@@ -2,8 +2,7 @@
 using CloudinaryDotNet.Actions;
 using Microsoft.Extensions.Options;
 using SocialApp.Helpers;
-using SocialApp.Interfaces;
-using System.Configuration;
+using SocialApp.Interfaces.Services;
 
 namespace SocialApp.Services
 {
@@ -39,15 +38,17 @@ namespace SocialApp.Services
                         // TODO: Add image transformation parameters if needed
                     };
 
-                    try
+
+                    // Upload the image to Cloudinary
+                    uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                    //throw errors if there are any
+                    if (uploadResult.Error != null)
                     {
-                        // Upload the image to Cloudinary
-                        uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                        throw new Exception(uploadResult.Error.Message);
                     }
-                    catch (Exception ex)
-                    {
-                       Console.WriteLine(ex);
-                    }
+
+
                 }
             }
 
@@ -63,19 +64,19 @@ namespace SocialApp.Services
             return result;
         }
 
-        public async Task<ListResourcesResult>  ListAllImageAsync()
+        public async Task<ListResourcesResult> ListAllImageAsync()
         {
             var listParams = new ListResourcesParams()
             {
                 MaxResults = 10, // Adjust as needed
-               
+
             };
 
             var resources = await _cloudinary.ListResourcesAsync(listParams);
 
             return resources;
 
-            
+
         }
     }
 }

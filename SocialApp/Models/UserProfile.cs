@@ -1,6 +1,4 @@
-﻿using SocialApp.Data.Enum;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SocialApp.Models
@@ -13,10 +11,10 @@ namespace SocialApp.Models
 
         [Required]
         [DataType(DataType.DateTime)]
-        public DateTime CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; } = DateTime.Now;
 
         [DataType(DataType.DateTime)]
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
         //Basic info
 
@@ -31,7 +29,7 @@ namespace SocialApp.Models
         //User Profile Picture
 
         public string? IconURL { get; set; }
-        
+
         //The AppUser this profile belongs to
 
         [ForeignKey("AppUser")]
@@ -39,16 +37,16 @@ namespace SocialApp.Models
         public AppUser? AppUser { get; set; }
 
         //Posts created by this user
-        public ICollection<Post> Posts { get; set; } = new HashSet<Post>();
+        public ICollection<Post>? Posts { get; set; } = new HashSet<Post>();
 
         //Following relationships with other userprofiles
-        public ICollection<UserProfile> Following { get; set; } = new HashSet<UserProfile>();
-        public ICollection<UserProfile> Followers { get; set; } = new HashSet<UserProfile>();
+        public ICollection<Follow>? Following { get; set; } = new HashSet<Follow>();
+        public ICollection<Follow>? Followers { get; set; } = new HashSet<Follow>();
 
         //Likes made by this user
-        public ICollection<Like> Likes { get; set; } = new HashSet<Like>();
+        public ICollection<Like>? Likes { get; set; } = new HashSet<Like>();
 
-        public ICollection<Story> Stories { get; set; } = new HashSet<Story>();
+        public ICollection<Story>? Stories { get; set; } = new HashSet<Story>();
 
     }
 }

@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SocialApp.Data;
-using SocialApp.Interfaces;
+using SocialApp.Interfaces.Repositories;
+using SocialApp.Interfaces.Services;
 using SocialApp.Models;
 
 namespace SocialApp.Controllers

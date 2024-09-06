@@ -69,9 +69,9 @@ namespace SocialAppTests
             var existingLike = new Like
             {
                 AuthorProfileId = authorProfileId,
-                EntityId = "1",
+                EntityId = "postId1",
                 DateTime = DateTime.Now,
-                EntityType = "MockEntity"
+                EntityType = "Post"
             };
 
             _context.Like.Add(existingLike);
@@ -79,9 +79,10 @@ namespace SocialAppTests
 
             // Act
             var result = _likeService.LikeItem(_post, authorProfileId);
+           
 
             // Assert
-            Assert.AreEqual(existingLike, result);
+            Assert.IsTrue(existingLike.Equals(result));
             Assert.AreEqual(1, _context.Like.Count(like => like.AuthorProfileId == authorProfileId));
         }
 

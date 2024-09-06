@@ -11,14 +11,14 @@ namespace SocialApp.DataTransferObject
 
         [Required]
         [DataType(DataType.DateTime)]
-        public DateTime CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
         public int LikesCount { get; set; } = 0;
 
         [Required(ErrorMessage = "Comment must contain at least 1 character")]
         public string? Text { get; set; }
 
-        public AuthorDTO? AuthorDTO { get; set; }
-        public ICollection<CommentDTO> SubCommentDTOs { get; set; }
+        public SimpleProfileDTO? AuthorDTO { get; set; }
+        public ICollection<CommentDTO>? SubCommentDTOs { get; set; }
 
         public CommentDTO() { }
         public CommentDTO(Comment comment)
@@ -27,7 +27,7 @@ namespace SocialApp.DataTransferObject
             CreatedAt = comment.CreatedAt;
             LikesCount = comment.LikesCount;
             Text = comment.Text;
-            AuthorDTO = new AuthorDTO(comment.AuthorProflie);
+            AuthorDTO = new SimpleProfileDTO(comment.AuthorProfile);
             SubCommentDTOs = serializeComments(comment.SubComments);
 
         }

@@ -1,74 +1,40 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SocialApp.Data;
 using SocialApp.DataTransferObject;
-using SocialApp.Interfaces;
+using SocialApp.Interfaces.Repositories;
+using SocialApp.Interfaces.Services;
 using SocialApp.Models;
-using SocialApp.ViewModel;
+using SocialApp.Services;
 
 namespace SocialApp.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class PostsController : Controller
+    public class PostsController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly IImageService _imageService;
         private readonly IPostRepository _postRepository;
         private readonly ILikeService _likeService;
+        private readonly ITokenService _tokenService;
 
-        public PostsController(IPostRepository repository, IImageService imageService, ApplicationDbContext context, ILikeService likeService)
+        public PostsController(IPostRepository repository, IImageService imageService, ApplicationDbContext context, ILikeService likeService, ITokenService tokenService)
         {
             _context = context;
             _imageService = imageService;
             _postRepository = repository;
             _likeService = likeService;
+            _tokenService = tokenService;
 
 
         }
 
-        [HttpGet]
-        public async Task<ActionResult> Index()
+
+        [HttpGet("")]
+        public async Task<ActionResult> Get()
         {
-            //Initialize DB if it is empty
-
-            //if (!_context.Post.Any())
-            //{
-            //    var user = _context.UserProfile.FirstOrDefaultAsync().Result;
-
-            //    var resourcesResult = await _imageService.ListAllImageAsync();
-            //    Console.WriteLine(resourcesResult);
-            //    int count = 1;
-            //    if (resourcesResult.Resources != null && user != null)
-            //    {
-            //        Console.WriteLine(resourcesResult.Resources);
-            //        foreach (var resource in resourcesResult.Resources)
-            //        {
-            //            Post newPost = new Post()
-            //            {
-
-            //                ImgURL = resource.Url.ToString(),
-            //                Description = $"image {count}",
-            //                AuthorProfileId = user.Id,
-
-            //            };
-
-            //            //add comments to posts
-            //            newPost.Comments.Add(new Comment
-            //            {
-            //                Text = $"Very cool post {user.UserName}",
-            //                PostId = newPost.Id,
-            //                AuthorProfileId = user.Id,
-            //                AuthorName = user.UserName,
-            //            });
-
-            //            _context.Post.Add(newPost);
-            //            _context.SaveChanges();
-
-            //            count++;
-            //        }
-            //    }
-            //}
+           
             var posts = await _postRepository.GetListAsync();
             var result = new List<PostDTO>();
             foreach (var p in posts)
@@ -76,11 +42,12 @@ namespace SocialApp.Controllers
                 var pDTO = new PostDTO(p);
                 result.Add(pDTO);
             }
-            return Ok(result); // Return posts as JSON
+            return Ok(new { Posts = result }); // Return posts as JSON
 
         }
 
         // GET: Posts/Details/5
+        [HttpGet("details/{id}")]
         public async Task<IActionResult> Details(string id)
         {
 
@@ -96,151 +63,187 @@ namespace SocialApp.Controllers
                 return NotFound();
             }
 
-            return View(post);
+            var postDTO = new PostDTO(post);
+
+            return Ok(new { Post = postDTO });
         }
 
-        // GET: Posts/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
+
 
         // POST: Posts/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Img,Description,AuthorProfileId")] PostVM post)
+        [HttpPost("create")]
+        [Authorize]
+        public async Task<IActionResult> Create([FromForm] CreatePostDTO createPostDTO, IFormFile? imageFile)
         {
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid || imageFile == null) { return BadRequest(ModelState); }
+
+            var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+
+            string? profileId = GetProfileIdFromToken(authHeader);
+
+            //invalid token
+            if (profileId == null) { return Unauthorized(); }
+
+            try
             {
 
-                var result = await _imageService.UploadImageAsync(post.Img);
+                var result = await _imageService.UploadImageAsync(imageFile);
 
-
-
-                if (result != null)
+                var newPost = new Post()
                 {
-                    var newPost = new Post()
-                    {
-                        Description = post.Description,
-                        ImgURL = result.Url.ToString(),
-                        AuthorProfileId = post.AuthorProfileId,
-                    };
+                    Description = createPostDTO.Description,
+                    ImgURL = result.Url.ToString(),
+                    AuthorProfileId = profileId,
+                    CreatedAt = DateTime.Now,
 
-                    _context.Post.Add(newPost);
-                    _context.SaveChanges();
+                };
 
+                await _postRepository.CreateAsync(newPost);
 
-
-                    return RedirectToAction(nameof(Index));
-                }
+                return CreatedAtAction(nameof(Details), new { id = newPost.Id });
 
             }
-
-
-            return View(post);
-        }
-
-        // GET: Posts/Edit/5
-        public async Task<IActionResult> Edit(string id)
-        {
-            if (id == null)
+            catch (Exception ex)
             {
-                return NotFound();
+                //failed to upload image
+                return BadRequest(ex.Message);
             }
-
-            var post = await _postRepository.GetAsync(id);
-
-            if (post == null)
-            {
-                return NotFound();
-            }
-
-            return View(post);
         }
 
         // POST: Posts/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,Description")] Post post)
+        [HttpPost("edit/{id}")]
+        [Authorize]
+        public async Task<IActionResult> Edit(string id, [FromForm] CreatePostDTO createPostDTO)
         {
-            if (id != post.Id)
+
+
+            if (!ModelState.IsValid) { return BadRequest(ModelState); }
+
+            var existingPost = await _postRepository.GetAsync(id);
+            if (existingPost == null) { return NotFound(); }
+
+            //Checks if existingPost belongs to the user making the request
+            var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+
+            Console.WriteLine(authHeader);
+
+            string? profileId = _tokenService.GetProfileIdFromToken(authHeader);
+
+
+            //invalid token
+            if (profileId == null) { Console.WriteLine("profileId == null"); return Unauthorized(); }
+
+
+            if (profileId != existingPost.AuthorProfileId)
             {
-                return NotFound();
+                Console.WriteLine("unauthorized post access");
+                return Unauthorized(new { message="User is not authorized to edit this post" });
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    await _postRepository.UpdateAsync(post);
 
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!await _postRepository.Exists(post.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+            //update description
+            existingPost.Description = createPostDTO.Description;
+            existingPost.UpdatedAt = DateTime.Now;
+
+            var updateResult = await _postRepository.UpdateAsync(existingPost);
+
+
+            if (updateResult)
+            {
+                var postDTO = new PostDTO(existingPost);
+                return Ok(new { success = true, post = postDTO });
+
             }
 
-            return View(post);
+            //Failed to save update to the database
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
         }
 
-        // GET: Posts/Delete/5
-        public async Task<IActionResult> Delete(string id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var post = await _postRepository.GetAsync(id);
-
-            if (post == null)
-            {
-                return NotFound();
-            }
-
-            return View(post);
-        }
 
         // POST: Posts/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost("delete/{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var post = await _context.Post.FindAsync(id);
+            var existingPost = await _context.Post.FindAsync(id);
 
-            await _postRepository.DeleteAsync(id);
+            if (existingPost == null) { return NotFound(); }
 
 
+            //Checks if existingPost belongs to the user making the request
+            var authHeader = Request.Headers["Authorization"].FirstOrDefault();
 
-            return RedirectToAction(nameof(Index));
-        }
+            string? profileId = GetProfileIdFromToken(authHeader);
 
-        [HttpPost]
-        public async Task<string> Like(string id)
-        {
-            var post = await _postRepository.GetAsync(id);
-            if (post != null)
+            //invalid token
+            if (profileId == null) { return Unauthorized(); }
+
+
+            if (profileId != existingPost.AuthorProfileId)
             {
-                _likeService.LikeItem(post, post.AuthorProfileId);
-
-                return "Post was liked";
+                return Unauthorized("User is not authorized to edit this post");
             }
 
-            return $"Like failed";
+
+            if (profileId != existingPost.AuthorProfileId)
+            {
+                return Unauthorized("User is not authorized to edit this post");
+            }
+
+
+            var deleteResult = await _postRepository.DeleteAsync(id);
+
+            if (deleteResult)
+            {
+                return Ok(new { success = true });
+
+            }
+            //Failed to save update to the database
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An unexpected error occurred." });
+
+
+        }
+
+        [HttpPost("like/{id}")]
+        [Authorize]
+        public async Task<IActionResult> Like(string id)
+        {
+            var post = await _postRepository.GetAsync(id);
+
+            if (post == null) { return NotFound(); }
+
+            //get profileId from token
+            var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+
+            string? profileId = GetProfileIdFromToken(authHeader);
+
+            //invalid token
+            if (profileId == null) { return Unauthorized(); }
+
+            _likeService.LikeItem(post,profileId);
+
+            return Ok(new { success = true });
+
+        }
+
+        public string? GetProfileIdFromToken(string authHeader)
+        {
+            try
+            {
+                var payload = _tokenService.ExtractPayload(authHeader);
+
+                return payload.userProfileId;
+
+            }
+            catch
+            {
+                return null;
+            }
         }
 
 

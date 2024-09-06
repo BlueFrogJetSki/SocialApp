@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SocialApp.Data;
-using SocialApp.Interfaces;
+using SocialApp.Interfaces.Repositories;
 using SocialApp.Models;
 
 namespace SocialApp.Repositories
@@ -16,9 +16,12 @@ namespace SocialApp.Repositories
 
         public async Task<UserProfile?> GetAsync(string id)
         {
-            if (!await UserProfileExists(id)) return null;
+            if (!await ExistsAsync(id)) return null;
 
-            return await _context.UserProfile.FindAsync(id);
+            return await _context.UserProfile.Include(p => p.Posts)
+                .Include(p => p.Followers)
+                .Include(p => p.Following)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
         }
 
@@ -31,7 +34,7 @@ namespace SocialApp.Repositories
 
         public async Task<bool> UpdateAsync(UserProfile userProfile)
         {
-            if (!await UserProfileExists(userProfile.Id)) return false;
+            if (!await ExistsAsync(userProfile.Id)) return false;
 
             var ExistingProfile = await GetAsync(userProfile.Id);
 
@@ -39,11 +42,11 @@ namespace SocialApp.Repositories
 
             _context.Entry(ExistingProfile).CurrentValues.SetValues(userProfile);
 
-            return await SaveChanges();
+            return await SaveChangesAsync();
 
         }
 
-        public async Task<bool> UserProfileExists(string id)
+        public async Task<bool> ExistsAsync(string id)
         {
             UserProfile? profile = await _context.UserProfile.FindAsync(id);
 
@@ -53,7 +56,7 @@ namespace SocialApp.Repositories
 
         }
 
-        public async Task<bool> SaveChanges()
+        public async Task<bool> SaveChangesAsync()
         {
             int ChangesMade = await _context.SaveChangesAsync();
             Console.WriteLine($"{ChangesMade} changes made in UserProfile");
@@ -61,6 +64,22 @@ namespace SocialApp.Repositories
             return ChangesMade >= 1;
         }
 
+        public async Task<bool> DeleteAsync(string id)
+        {
+            UserProfile? UserProfile = await GetAsync(id);
 
+            if (UserProfile == null) { return false; }
+
+            _context.UserProfile.Remove(UserProfile);
+
+            return await SaveChangesAsync();
+
+        }
+
+        public async Task<bool> CreateAsync(UserProfile UserProfile)
+        {
+            await _context.UserProfile.AddAsync(UserProfile);
+            return await SaveChangesAsync();
+        }
     }
 }

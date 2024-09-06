@@ -1,12 +1,18 @@
 using dotenv.net;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using SocialApp.Data;
 using SocialApp.Helpers;
-using SocialApp.Interfaces;
+using SocialApp.Interfaces.Repositories;
+using SocialApp.Interfaces.Services;
 using SocialApp.Models;
 using SocialApp.Repositories;
 using SocialApp.Services;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,17 +27,48 @@ builder.Services.AddDefaultIdentity<AppUser>(options =>
     options.User.RequireUniqueEmail = true;
     options.SignIn.RequireConfirmedAccount = false;
 })
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
 //Uncomment and remove AddControllerWithViews() when fully migrated to api controllers
 //builder.Services.AddControllers();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+    };
+    // Optional: Log or debug failed token validation issues
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            // Log the exception or provide additional debugging info
+            Console.WriteLine($"Authentication failed: {context.Exception}");
+            return Task.CompletedTask;
+        }
+    };
+});
+
 
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<ILikeService, LikeService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 //builder.Services.Configure<FormOptions>(options =>
 //{
@@ -72,6 +109,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

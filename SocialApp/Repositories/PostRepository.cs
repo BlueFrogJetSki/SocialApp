@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SocialApp.Data;
-using SocialApp.Interfaces;
+using SocialApp.Interfaces.Repositories;
 using SocialApp.Models;
 using SocialApp.ViewModel;
 
@@ -22,11 +22,11 @@ namespace SocialApp.Repositories
 
             _context.Post.Remove(post);
 
-            return await SaveChanges();
+            return await SaveChangesAsync();
 
         }
 
-        public async Task<bool> Exists(string id)
+        public async Task<bool> ExistsAsync(string id)
         {
             var post = await _context.Post.FindAsync(id);
 
@@ -48,7 +48,7 @@ namespace SocialApp.Repositories
                 .Include(p => p.Comments).ToListAsync();
         }
 
-        public async Task<bool> SaveChanges()
+        public async Task<bool> SaveChangesAsync()
         {
             var NumChanges = await _context.SaveChangesAsync();
             return NumChanges > 0;
@@ -56,7 +56,7 @@ namespace SocialApp.Repositories
 
         public async Task<bool> UpdateAsync(Post post)
         {
-            if (!await Exists(post.Id)) return false;
+            if (!await ExistsAsync(post.Id)) return false;
 
             var ExistingPost = await GetAsync(post.Id);
 
@@ -64,13 +64,15 @@ namespace SocialApp.Repositories
 
             _context.Entry(ExistingPost).CurrentValues.SetValues(post);
 
-            return await SaveChanges();
+            return await SaveChangesAsync();
         }
 
         public async Task<bool> CreateAsync(Post post)
         {
             await _context.Post.AddAsync(post);
-            return await SaveChanges();
+            return await SaveChangesAsync();
         }
+
+    
     }
 }

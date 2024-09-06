@@ -124,7 +124,7 @@ namespace SocialAppTests
             string testId = "1";
 
             // Act
-            var result = await _repository.UserProfileExists(testId);
+            var result = await _repository.ExistsAsync(testId);
 
             // Assert
             Assert.IsTrue(result);
@@ -137,7 +137,7 @@ namespace SocialAppTests
             string testId = "999";
 
             // Act
-            var result = await _repository.UserProfileExists(testId);
+            var result = await _repository.ExistsAsync(testId);
 
             // Assert
             Assert.IsFalse(result);

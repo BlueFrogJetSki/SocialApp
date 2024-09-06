@@ -1,6 +1,6 @@
 ﻿using SocialApp.Models;
 
-namespace SocialApp.Interfaces
+namespace SocialApp.Interfaces.Services
 {
     public interface ILikeService
     {

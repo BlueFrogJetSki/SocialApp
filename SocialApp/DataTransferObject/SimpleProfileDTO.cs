@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SocialApp.DataTransferObject
 {
-    public class AuthorDTO
+    public class SimpleProfileDTO
     {
 
         //Basic info
@@ -13,12 +13,15 @@ namespace SocialApp.DataTransferObject
         [RegularExpression(@"^[a-zA-Z0-9_]+$", ErrorMessage = "Username can only contain letters, numbers, and underscores.")]
         public string? UserName { get; set; }
 
+        [StringLength(150, ErrorMessage = "Biography cannot be longer than 150 characters.")]
+        public string? Biography { get; set; }
+
         //User Profile Picture
 
         public string? IconURL { get; set; }
 
-        public AuthorDTO() { }
-        public AuthorDTO(UserProfile profile)
+        public SimpleProfileDTO() { }
+        public SimpleProfileDTO(UserProfile profile)
         {
             UserName = profile?.UserName;
             IconURL = profile?.IconURL;

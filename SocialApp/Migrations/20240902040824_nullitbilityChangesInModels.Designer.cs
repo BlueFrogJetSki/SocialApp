@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SocialApp.Data;
 
@@ -11,9 +12,11 @@ using SocialApp.Data;
 namespace SocialApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240902040824_nullitbilityChangesInModels")]
+    partial class nullitbilityChangesInModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -266,26 +269,6 @@ namespace SocialApp.Migrations
                     b.ToTable("Comment");
                 });
 
-            modelBuilder.Entity("SocialApp.Models.Follow", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("FolloweeId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("FollowerId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FolloweeId");
-
-                    b.HasIndex("FollowerId");
-
-                    b.ToTable("Follow");
-                });
-
             modelBuilder.Entity("SocialApp.Models.Like", b =>
                 {
                     b.Property<string>("Id")
@@ -423,6 +406,21 @@ namespace SocialApp.Migrations
                     b.ToTable("UserProfile");
                 });
 
+            modelBuilder.Entity("UserProfileUserProfile", b =>
+                {
+                    b.Property<string>("FollowersId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FollowingId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("FollowersId", "FollowingId");
+
+                    b.HasIndex("FollowingId");
+
+                    b.ToTable("UserProfileUserProfile");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -493,23 +491,6 @@ namespace SocialApp.Migrations
                     b.Navigation("Post");
                 });
 
-            modelBuilder.Entity("SocialApp.Models.Follow", b =>
-                {
-                    b.HasOne("SocialApp.Models.UserProfile", "Followee")
-                        .WithMany("Followers")
-                        .HasForeignKey("FolloweeId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SocialApp.Models.UserProfile", "Follower")
-                        .WithMany("Following")
-                        .HasForeignKey("FollowerId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Followee");
-
-                    b.Navigation("Follower");
-                });
-
             modelBuilder.Entity("SocialApp.Models.Like", b =>
                 {
                     b.HasOne("SocialApp.Models.UserProfile", "AuthorProfile")
@@ -559,6 +540,21 @@ namespace SocialApp.Migrations
                     b.Navigation("AppUser");
                 });
 
+            modelBuilder.Entity("UserProfileUserProfile", b =>
+                {
+                    b.HasOne("SocialApp.Models.UserProfile", null)
+                        .WithMany()
+                        .HasForeignKey("FollowersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SocialApp.Models.UserProfile", null)
+                        .WithMany()
+                        .HasForeignKey("FollowingId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SocialApp.Models.AppUser", b =>
                 {
                     b.Navigation("UserProfile");
@@ -585,10 +581,6 @@ namespace SocialApp.Migrations
 
             modelBuilder.Entity("SocialApp.Models.UserProfile", b =>
                 {
-                    b.Navigation("Followers");
-
-                    b.Navigation("Following");
-
                     b.Navigation("Likes");
 
                     b.Navigation("Posts");

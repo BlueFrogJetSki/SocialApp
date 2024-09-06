@@ -1,7 +1,7 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 
-namespace SocialApp.Interfaces
+namespace SocialApp.Interfaces.Services
 {
     public interface IImageService
     {

@@ -28,6 +28,18 @@ namespace SocialApp.Data
                 .HasForeignKey(p => p.AuthorProfileId)
                 .OnDelete(DeleteBehavior.Restrict);  // Optional: configure cascade behavior
 
+            modelBuilder.Entity<Follow>()
+           .HasOne(f => f.Follower)
+           .WithMany(up => up.Following)
+           .HasForeignKey(f => f.FollowerId)
+           .OnDelete(DeleteBehavior.Restrict);  // Adjust as necessary
+
+            modelBuilder.Entity<Follow>()
+                .HasOne(f => f.Followee)
+                .WithMany(up => up.Followers)
+                .HasForeignKey(f => f.FolloweeId)
+                .OnDelete(DeleteBehavior.Restrict);  // Adjust as necessary
+
         }
     }
 }

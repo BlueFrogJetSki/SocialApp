@@ -1,6 +1,8 @@
 ﻿using SocialApp.Data;
 using SocialApp.Interfaces;
+using SocialApp.Interfaces.Services;
 using SocialApp.Models;
+using System;
 
 namespace SocialApp.Services
 {
@@ -17,14 +19,16 @@ namespace SocialApp.Services
         //add the like to the Collection<Like> in item
         public Like? LikeItem(ILikeable item, string authorProfileId)
         {
-
+            
             if (item == null) { return null; }
 
             var existingLike = _context.Like.FirstOrDefault(like => like.AuthorProfileId == authorProfileId && like.EntityId == GetEntityId(item));
 
-            if (existingLike != null) { return existingLike; }
+            if (existingLike != null) {  return existingLike; }
 
+     
             item.LikesCount++;
+
             Like newLike = new Like()
             {
                 AuthorProfileId = authorProfileId,
@@ -38,6 +42,8 @@ namespace SocialApp.Services
 
             item.Likes.Add(newLike);
             _context.SaveChanges();
+
+           
             return newLike;
 
         }

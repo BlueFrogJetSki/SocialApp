@@ -22,7 +22,7 @@ namespace SocialApp.DataTransferObject
         public bool Hidden { get; set; } = false;
 
         //Author Info
-        public AuthorDTO? AuthorDTO { get; set; }
+        public SimpleProfileDTO? AuthorDTO { get; set; }
 
         // The Comments property holds a collection of comments associated with the post.
         public ICollection<CommentDTO> CommentDTOs { get; set; }
@@ -39,7 +39,7 @@ namespace SocialApp.DataTransferObject
             ImgURL = post.ImgURL;
             Description = post.Description;
             Hidden = post.Hidden;
-            AuthorDTO = new AuthorDTO(post.AuthorProfile);
+            AuthorDTO = new SimpleProfileDTO(post.AuthorProfile);
             CommentDTOs = serializeComments(post.Comments);
             LikesCount = post.LikesCount;
             Likes = post.Likes;

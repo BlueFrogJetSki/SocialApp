@@ -1,9 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SocialApp.Interfaces;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SocialApp.Models
 {
-    public class Comment
+    public class Comment:ILikeable
     {
         // It is initialized with a new GUID to ensure uniqueness.
         [Key]
@@ -11,10 +12,10 @@ namespace SocialApp.Models
 
         [Required]
         [DataType(DataType.DateTime)]
-        public DateTime CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; } = DateTime.Now;
 
         [DataType(DataType.DateTime)]
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
 
         public int LikesCount { get; set; } = 0;
 
@@ -28,9 +29,9 @@ namespace SocialApp.Models
 
         [ForeignKey("AuthorProfile")]
         public string? AuthorProfileId { get; set; }
-        public UserProfile? AuthorProflie { get; set; }
+        public UserProfile? AuthorProfile { get; set; }
         public string ? AuthorName { get; set; }
-        public ICollection<Like> Likes { get; set; } = new HashSet<Like>();
-        public ICollection<Comment> SubComments { get; set; } = new List<Comment>();
+        public ICollection<Like>? Likes { get; set; } = new HashSet<Like>();
+        public ICollection<Comment>? SubComments { get; set; } = new List<Comment>();
     }
 }
