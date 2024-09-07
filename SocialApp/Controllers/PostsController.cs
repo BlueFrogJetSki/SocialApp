@@ -39,6 +39,7 @@ namespace SocialApp.Controllers
                 var pDTO = new PostDTO(p);
                 result.Add(pDTO);
             }
+            
             return Ok(new { Posts = result }); // Return posts as JSON
 
         }

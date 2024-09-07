@@ -27,7 +27,7 @@ namespace SocialApp.DataTransferObject
 
         // From ILikeable
         public int LikesCount { get; set; } = 0;
-        public ICollection<Like> Likes { get; set; } = new HashSet<Like>();
+        public ICollection<LikeDTO> Likes { get; set; } = new HashSet<LikeDTO>();
 
         public PostDTO() { }
         public PostDTO(Post post)
@@ -40,10 +40,7 @@ namespace SocialApp.DataTransferObject
             AuthorDTO = new SimpleProfileDTO(post.AuthorProfile);
             CommentDTOs = serializeComments(post.Comments);
             LikesCount = post.LikesCount;
-            Likes = post.Likes;
-
-            
-
+            Likes = serializeLikes(post.Likes);
         }
 
         //TODO Create a single definition for this function to be used across DTOS
@@ -54,6 +51,18 @@ namespace SocialApp.DataTransferObject
             {
 
                 result.Add(new CommentDTO(comment));
+            }
+
+            return result;
+        }
+
+        public List<LikeDTO> serializeLikes(ICollection<Like> likes)
+        {
+            var result = new List<LikeDTO>();
+            foreach (var l in likes)
+            {
+
+                result.Add(new LikeDTO(l));
             }
 
             return result;
