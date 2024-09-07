@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using SocialApp.Data;
 using SocialApp.Helpers;
 using SocialApp.Interfaces.Repositories;
@@ -12,14 +13,15 @@ using SocialApp.Interfaces.Services;
 using SocialApp.Models;
 using SocialApp.Repositories;
 using SocialApp.Services;
+using Swashbuckle.AspNetCore.Swagger;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var connectionString = builder.Configuration.GetConnectionString("CloudConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseNpgsql(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<AppUser>(options =>
@@ -30,8 +32,8 @@ builder.Services.AddDefaultIdentity<AppUser>(options =>
     .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
 //Uncomment and remove AddControllerWithViews() when fully migrated to api controllers
-//builder.Services.AddControllers();
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllers();
+//builder.Services.AddControllersWithViews();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -69,6 +71,10 @@ builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<ILikeService, LikeService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+});
 
 //builder.Services.Configure<FormOptions>(options =>
 //{
@@ -91,6 +97,9 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseSwagger();
+app.UseSwaggerUI();
 app.Use(async (context, next) =>
 {
     var logger = app.Services.GetRequiredService<ILogger<Program>>();
@@ -115,7 +124,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "api/{controller}/{action}/{id?}");
 app.MapRazorPages();
 
 

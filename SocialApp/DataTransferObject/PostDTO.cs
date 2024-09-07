@@ -6,8 +6,6 @@ namespace SocialApp.DataTransferObject
 {
     public class PostDTO
     {
-        // It is initialized with a new GUID to ensure uniqueness.
-      
         public string Id { get; set; }
 
         //Meta Info

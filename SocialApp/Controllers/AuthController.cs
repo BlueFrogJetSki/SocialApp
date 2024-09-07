@@ -84,7 +84,7 @@ namespace SocialApp.Controllers
         {
 
             Console.WriteLine(Request.Body.ToString());
-            if (!ModelState.IsValid) { Console.WriteLine(ModelState); return BadRequest(ModelState); }
+            if (!ModelState.IsValid) { return BadRequest(ModelState); }
 
             var user = CreateUser();
 

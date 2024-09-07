@@ -26,10 +26,7 @@ namespace SocialApp.Controllers
             _postRepository = repository;
             _likeService = likeService;
             _tokenService = tokenService;
-
-
         }
-
 
         [HttpGet("")]
         public async Task<ActionResult> Get()
@@ -82,7 +79,7 @@ namespace SocialApp.Controllers
 
             var authHeader = Request.Headers["Authorization"].FirstOrDefault();
 
-            string? profileId = GetProfileIdFromToken(authHeader);
+            string? profileId = _tokenService.GetProfileIdFromToken(authHeader);
 
             //invalid token
             if (profileId == null) { return Unauthorized(); }
@@ -90,7 +87,7 @@ namespace SocialApp.Controllers
             try
             {
 
-                var result = await _imageService.UploadImageAsync(imageFile);
+                var result = await _imageService.UploadPostImageAsync(imageFile);
 
                 var newPost = new Post()
                 {
@@ -121,7 +118,6 @@ namespace SocialApp.Controllers
         public async Task<IActionResult> Edit(string id, [FromForm] CreatePostDTO createPostDTO)
         {
 
-
             if (!ModelState.IsValid) { return BadRequest(ModelState); }
 
             var existingPost = await _postRepository.GetAsync(id);
@@ -130,21 +126,17 @@ namespace SocialApp.Controllers
             //Checks if existingPost belongs to the user making the request
             var authHeader = Request.Headers["Authorization"].FirstOrDefault();
 
-            Console.WriteLine(authHeader);
-
             string? profileId = _tokenService.GetProfileIdFromToken(authHeader);
 
 
             //invalid token
-            if (profileId == null) { Console.WriteLine("profileId == null"); return Unauthorized(); }
+            if (profileId == null) {  return Unauthorized(); }
 
 
             if (profileId != existingPost.AuthorProfileId)
             {
-                Console.WriteLine("unauthorized post access");
                 return Unauthorized(new { message="User is not authorized to edit this post" });
             }
-
 
             //update description
             existingPost.Description = createPostDTO.Description;
@@ -178,7 +170,7 @@ namespace SocialApp.Controllers
             //Checks if existingPost belongs to the user making the request
             var authHeader = Request.Headers["Authorization"].FirstOrDefault();
 
-            string? profileId = GetProfileIdFromToken(authHeader);
+            string? profileId = _tokenService.GetProfileIdFromToken(authHeader);
 
             //invalid token
             if (profileId == null) { return Unauthorized(); }
@@ -220,7 +212,7 @@ namespace SocialApp.Controllers
             //get profileId from token
             var authHeader = Request.Headers["Authorization"].FirstOrDefault();
 
-            string? profileId = GetProfileIdFromToken(authHeader);
+            string? profileId = _tokenService.GetProfileIdFromToken(authHeader);
 
             //invalid token
             if (profileId == null) { return Unauthorized(); }
@@ -231,21 +223,7 @@ namespace SocialApp.Controllers
 
         }
 
-        public string? GetProfileIdFromToken(string authHeader)
-        {
-            try
-            {
-                var payload = _tokenService.ExtractPayload(authHeader);
-
-                return payload.userProfileId;
-
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
+     
 
     }
 }

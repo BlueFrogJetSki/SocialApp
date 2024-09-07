@@ -2,7 +2,7 @@
 using SocialApp.Data;
 using SocialApp.Interfaces.Repositories;
 using SocialApp.Models;
-using SocialApp.ViewModel;
+
 
 namespace SocialApp.Repositories
 {
@@ -16,7 +16,7 @@ namespace SocialApp.Repositories
 
         public async Task<bool> DeleteAsync(string id)
         {
-            Post? post = await GetAsync(id);
+            Post? post = await _context.Post.FindAsync(id);
 
             if (post == null) { return false; }
 
@@ -56,8 +56,6 @@ namespace SocialApp.Repositories
 
         public async Task<bool> UpdateAsync(Post post)
         {
-            if (!await ExistsAsync(post.Id)) return false;
-
             var ExistingPost = await GetAsync(post.Id);
 
             if (ExistingPost == null) return false;

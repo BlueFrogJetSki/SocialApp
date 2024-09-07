@@ -4,7 +4,7 @@ using SocialApp.DataTransferObject;
 using SocialApp.Interfaces.Repositories;
 using SocialApp.Interfaces.Services;
 using SocialApp.Models;
-using SocialApp.ViewModel;
+
 
 namespace SocialApp.Controllers
 {
@@ -64,7 +64,7 @@ namespace SocialApp.Controllers
                
                 try
                 {
-                    var result = await _imageService.UploadImageAsync(profileDTO.IconImg);
+                    var result = await _imageService.UploadProfileImageAsync(profileDTO.IconImg);
 
                     if (result != null)
                     {
