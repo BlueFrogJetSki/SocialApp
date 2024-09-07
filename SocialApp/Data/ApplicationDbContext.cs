@@ -14,6 +14,8 @@ namespace SocialApp.Data
         public DbSet<SocialApp.Models.Post> Post { get; set; } = default!;
         public DbSet<SocialApp.Models.Comment> Comment { get; set; } = default!;
         public DbSet<SocialApp.Models.Story> Story { get; set; } = default!;
+
+        public DbSet<SocialApp.Models.Follow> Follow { get; set; } = default!;
         public DbSet<SocialApp.Models.Like> Like { get; set; } = default!;
 
 
