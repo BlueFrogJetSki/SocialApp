@@ -22,7 +22,7 @@ namespace SocialApp.Services
             
             if (item == null) { return null; }
 
-            var existingLike = _context.Like.FirstOrDefault(like => like.AuthorProfileId == authorProfileId && like.EntityId == GetEntityId(item));
+            var existingLike = _context.Like.FirstOrDefault(like => like.AuthorProfileId == authorProfileId && like.EntityId == item.Id);
 
             if (existingLike != null) {  return existingLike; }
 
@@ -33,8 +33,8 @@ namespace SocialApp.Services
             {
                 AuthorProfileId = authorProfileId,
                 DateTime = DateTime.Now,
-                EntityType = item.GetType().Name,
-                EntityId = GetEntityId(item)
+                EntityType = item.Type,
+                EntityId = item.Id
             };
 
             _context.Like.Add(newLike);

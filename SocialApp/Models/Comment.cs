@@ -10,6 +10,8 @@ namespace SocialApp.Models
         [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
+        public string Type { get; set; } = "Comment";
+
         [Required]
         [DataType(DataType.DateTime)]
         public DateTime? CreatedAt { get; set; } = DateTime.Now;

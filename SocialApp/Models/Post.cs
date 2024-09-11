@@ -15,7 +15,10 @@ namespace SocialApp.Models
         [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
-       //Meta Info
+
+        public string Type { get; set; } = "Post";
+
+        //Meta Info
         [Required]
         [DataType(DataType.DateTime)]
         public DateTime CreatedAt { get; set; }

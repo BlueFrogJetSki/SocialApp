@@ -9,6 +9,8 @@ namespace SocialApp.Interfaces
 
         public ICollection<Like> Likes { get; set; }
 
+        public string Type { get; set; }
+
         //public bool AddLike(Like like);
         //public bool RemoveLike(Like like);
     }

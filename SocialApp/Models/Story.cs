@@ -11,6 +11,8 @@ namespace SocialApp.Models
         [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
+        public string Type { get; set; } = "Story";
+
         [Required]
         [DataType(DataType.DateTime)]
         public DateTime DateTime { get; set; }
