@@ -32,7 +32,7 @@ namespace SocialApp.Services
             Like newLike = new Like()
             {
                 AuthorProfileId = authorProfileId,
-                DateTime = DateTime.Now,
+                DateTime = DateTime.Now.ToUniversalTime(),
                 EntityType = item.Type,
                 EntityId = item.Id
             };

@@ -5,7 +5,6 @@ using SocialApp.DataTransferObject;
 using SocialApp.Interfaces.Repositories;
 using SocialApp.Interfaces.Services;
 using SocialApp.Models;
-using SocialApp.Services;
 
 namespace SocialApp.Controllers
 {
@@ -31,7 +30,7 @@ namespace SocialApp.Controllers
         [HttpGet("")]
         public async Task<ActionResult> Get()
         {
-           
+
             var posts = await _postRepository.GetListAsync();
             var result = new List<PostDTO>();
             foreach (var p in posts)
@@ -39,7 +38,7 @@ namespace SocialApp.Controllers
                 var pDTO = new PostDTO(p);
                 result.Add(pDTO);
             }
-            
+
             return Ok(new { Posts = result }); // Return posts as JSON
 
         }
@@ -78,9 +77,12 @@ namespace SocialApp.Controllers
 
             if (!ModelState.IsValid || imageFile == null) { return BadRequest(ModelState); }
 
-            var authHeader = Request.Headers["Authorization"].FirstOrDefault();
 
-            string? profileId = _tokenService.GetProfileIdFromToken(authHeader);
+            //get token
+            if (!Request.Cookies.TryGetValue("Authorization", out var token)) { return Unauthorized(); }
+
+
+            string? profileId = _tokenService.GetProfileIdFromToken(token);
 
             //invalid token
             if (profileId == null) { return Unauthorized(); }
@@ -95,7 +97,7 @@ namespace SocialApp.Controllers
                     Description = createPostDTO.Description,
                     ImgURL = result.Url.ToString(),
                     AuthorProfileId = profileId,
-                    CreatedAt = DateTime.Now,
+                    CreatedAt = DateTime.Now.ToUniversalTime().ToUniversalTime(),
 
                 };
 
@@ -109,6 +111,9 @@ namespace SocialApp.Controllers
                 //failed to upload image
                 return BadRequest(ex.Message);
             }
+
+
+
         }
 
         // POST: Posts/Edit/5
@@ -125,23 +130,23 @@ namespace SocialApp.Controllers
             if (existingPost == null) { return NotFound(); }
 
             //Checks if existingPost belongs to the user making the request
-            var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+            if (!Request.Cookies.TryGetValue("Authorization", out var token)) { return Unauthorized(); }
 
-            string? profileId = _tokenService.GetProfileIdFromToken(authHeader);
+            string? profileId = _tokenService.GetProfileIdFromToken(token);
 
 
             //invalid token
-            if (profileId == null) {  return Unauthorized(); }
+            if (profileId == null) { return Unauthorized(); }
 
 
             if (profileId != existingPost.AuthorProfileId)
             {
-                return Unauthorized(new { message="User is not authorized to edit this post" });
+                return Unauthorized(new { message = "User is not authorized to edit this post" });
             }
 
             //update description
             existingPost.Description = createPostDTO.Description;
-            existingPost.UpdatedAt = DateTime.Now;
+            existingPost.UpdatedAt = DateTime.Now.ToUniversalTime().ToUniversalTime();
 
             var updateResult = await _postRepository.UpdateAsync(existingPost);
 
@@ -169,9 +174,9 @@ namespace SocialApp.Controllers
 
 
             //Checks if existingPost belongs to the user making the request
-            var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+            if (!Request.Cookies.TryGetValue("Authorization", out var token)) { return Unauthorized(); }
 
-            string? profileId = _tokenService.GetProfileIdFromToken(authHeader);
+            string? profileId = _tokenService.GetProfileIdFromToken(token);
 
             //invalid token
             if (profileId == null) { return Unauthorized(); }
@@ -211,20 +216,20 @@ namespace SocialApp.Controllers
             if (post == null) { return NotFound(); }
 
             //get profileId from token
-            var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+            if (!Request.Cookies.TryGetValue("Authorization", out var token)) { return Unauthorized(); }
 
-            string? profileId = _tokenService.GetProfileIdFromToken(authHeader);
+            string? profileId = _tokenService.GetProfileIdFromToken(token);
 
             //invalid token
             if (profileId == null) { return Unauthorized(); }
 
-            _likeService.LikeItem(post,profileId);
+            _likeService.LikeItem(post, profileId);
 
             return Ok(new { success = true });
 
         }
 
-     
+
 
     }
 }

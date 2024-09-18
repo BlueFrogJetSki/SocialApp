@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Moq;
 using SocialApp.Controllers;
 using SocialApp.Data;
+using SocialApp.Interfaces.Repositories;
 using SocialApp.Interfaces.Services;
 using SocialApp.Models;
 
@@ -15,6 +16,7 @@ namespace SocialAppTests
         private ApplicationDbContext _context;
         private Mock<ITokenService> _mockTokenService;
         private Mock<ILikeService> _mockLikeService;
+        private Mock<ICommentRepository> _mockCommentRepository;
         private CommentsController _controller;
         private Mock<HttpContext> _mockHttpContext;
 
@@ -30,6 +32,7 @@ namespace SocialAppTests
 
             _mockTokenService = new Mock<ITokenService>();
             _mockLikeService = new Mock<ILikeService>();
+            _mockCommentRepository = new Mock<ICommentRepository>(); 
 
             _mockTokenService.Setup(t => t.GetProfileIdFromToken(It.IsAny<string>()))
                 .Returns("user1");
@@ -38,7 +41,7 @@ namespace SocialAppTests
             _mockHttpContext.Setup(ctx => ctx.Request.Headers["Authorization"])
                 .Returns("Bearer token");
 
-            _controller = new CommentsController(_context, _mockTokenService.Object, _mockLikeService.Object)
+            _controller = new CommentsController(_context, _mockTokenService.Object, _mockLikeService.Object, _mockCommentRepository.Object)
             {
                 ControllerContext = new ControllerContext
                 {

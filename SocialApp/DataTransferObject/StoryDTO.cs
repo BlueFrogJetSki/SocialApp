@@ -7,7 +7,7 @@ namespace SocialApp.DataTransferObject
     {
         [Required]
         [DataType(DataType.DateTime)]
-        public DateTime DateTime { get; set; } = DateTime.Now;
+        public DateTime DateTime { get; set; } = DateTime.Now.ToUniversalTime();
 
         public bool IsHidden { get; set; }
 

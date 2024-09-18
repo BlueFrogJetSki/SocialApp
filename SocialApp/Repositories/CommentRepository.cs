@@ -5,7 +5,7 @@ using SocialApp.Models;
 
 namespace SocialApp.Repositories
 {
-    public class CommentRepository:ICommentRepository
+    public class CommentRepository : ICommentRepository
     {
         private readonly ApplicationDbContext _context;
         public CommentRepository(ApplicationDbContext context)
@@ -34,7 +34,7 @@ namespace SocialApp.Repositories
 
         public async Task<Comment?> GetAsync(string id)
         {
-            return await _context.Comment.Include(c => c.AuthorProfile).Include(c=>c.SubComments).FirstOrDefaultAsync(p => p.Id == id);
+            return await _context.Comment.Include(c => c.AuthorProfile).Include(c => c.SubComments).FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<IEnumerable<Comment>> GetListAsync()
@@ -69,7 +69,11 @@ namespace SocialApp.Repositories
             return await SaveChangesAsync();
         }
 
-
+        async Task<List<Comment>> ICommentRepository.GetCommentsForPostAsync(string postId)
+        {
+            var comments = await _context.Comment.Where(c => c.PostId == postId).ToListAsync();
+            return comments;
+        }
     }
 }
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using NuGet.Common;
 using SocialApp.Helpers;
 using SocialApp.Interfaces.Services;
 using SocialApp.Models;
@@ -71,20 +72,27 @@ namespace SocialApp.Services
             }
         }
 
-        public string? GetProfileIdFromToken(string authHeader)
+        public string? GetProfileIdFromToken(string token)
         {
-            try
-            {
-                var payload =ExtractPayload(authHeader);
+            
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var jwtToken = tokenHandler.ReadJwtToken(token);
 
-                return payload.userProfileId;
+                foreach (var c in jwtToken.Claims)
+                {
+                    Console.WriteLine(c);
+                    Console.WriteLine(c.Type);
+                }
 
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex);
-                return null;
-            }
+                // Access the token payload (claims)
+                //var profileId = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                //for whatever reason the Claim type was changed ::skull
+                var profileId = jwtToken.Claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
+
+
+                return profileId;
+
+            
         }
 
     }

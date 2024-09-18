@@ -22,12 +22,8 @@ namespace SocialApp.DataTransferObject
         //Author Info
         public SimpleProfileDTO? AuthorDTO { get; set; }
 
-        // The Comments property holds a collection of comments associated with the post.
-        public ICollection<CommentDTO> CommentDTOs { get; set; }
-
         // From ILikeable
         public int LikesCount { get; set; } = 0;
-        public ICollection<LikeDTO> Likes { get; set; } = new HashSet<LikeDTO>();
 
         public PostDTO() { }
         public PostDTO(Post post)
@@ -38,9 +34,7 @@ namespace SocialApp.DataTransferObject
             Description = post.Description;
             Hidden = post.Hidden;
             AuthorDTO = new SimpleProfileDTO(post.AuthorProfile);
-            CommentDTOs = serializeComments(post.Comments);
             LikesCount = post.LikesCount;
-            Likes = serializeLikes(post.Likes);
         }
 
         //TODO Create a single definition for this function to be used across DTOS

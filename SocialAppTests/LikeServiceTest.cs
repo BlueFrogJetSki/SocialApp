@@ -70,7 +70,7 @@ namespace SocialAppTests
             {
                 AuthorProfileId = authorProfileId,
                 EntityId = "postId1",
-                DateTime = DateTime.Now,
+                DateTime = DateTime.Now.ToUniversalTime(),
                 EntityType = "Post"
             };
 

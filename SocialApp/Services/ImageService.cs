@@ -1,7 +1,10 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
-using ImageProcessor;
 using Microsoft.Extensions.Options;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Processing;
 using SocialApp.Helpers;
 using SocialApp.Interfaces.Services;
 
@@ -34,9 +37,8 @@ namespace SocialApp.Services
                 using (var inputStream = file.OpenReadStream())
                 {
                     var outputStream = new MemoryStream();
-                    var imgSize = new System.Drawing.Size() { Width = 1080, Height = 1080 };
 
-                    resizeImage(inputStream, outputStream, imgSize);
+                    resizeImage(inputStream, outputStream, 1080, 1080);
 
                     // Prepare parameters for the image upload
                     var uploadParams = new ImageUploadParams
@@ -99,9 +101,9 @@ namespace SocialApp.Services
                 using (var inputStream = file.OpenReadStream())
                 {
                     var outputStream = new MemoryStream();
-                    var imgSize = new System.Drawing.Size() { Width = 110, Height = 110 };
+                   
 
-                    resizeImage(inputStream, outputStream, imgSize);
+                    resizeImage(inputStream, outputStream,110,110);
 
                     // Prepare parameters for the image upload
                     var uploadParams = new ImageUploadParams
@@ -128,13 +130,16 @@ namespace SocialApp.Services
             return uploadResult;
         }
 
-        private void resizeImage(Stream inputStream, Stream outputStream, System.Drawing.Size size)
+        private void resizeImage(Stream inputStream, Stream outputStream, int width, int height)
         {
-            ImageFactory imgFactory = new ImageFactory().Load(inputStream).Constrain(size);
+            //ImageFactory imgFactory = new ImageFactory().Load(inputStream).Constrain(size);
+            using (Image image = Image.Load(inputStream))
+            {
+                image.Mutate(x => x.Resize(width, height));
+                
+                image.Save(outputStream, new PngEncoder());
 
-            imgFactory.Save(outputStream);
-
-
+            }
 
         }
     }

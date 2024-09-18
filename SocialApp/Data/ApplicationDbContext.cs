@@ -30,6 +30,10 @@ namespace SocialApp.Data
                 .HasForeignKey(p => p.AuthorProfileId)
                 .OnDelete(DeleteBehavior.Restrict);  // Optional: configure cascade behavior
 
+            modelBuilder.Entity<UserProfile>()
+            .HasIndex(u => u.UserName)  // Define index on Email
+            .IsUnique();              // Make the index unique
+
             modelBuilder.Entity<Follow>()
            .HasOne(f => f.Follower)
            .WithMany(up => up.Following)

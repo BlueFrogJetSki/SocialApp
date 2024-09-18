@@ -14,6 +14,7 @@ namespace SocialApp.Repositories
             _context = context;
         }
 
+     
         public async Task<UserProfile?> GetAsync(string id)
         {
             if (!await ExistsAsync(id)) return null;
@@ -80,6 +81,11 @@ namespace SocialApp.Repositories
         {
             await _context.UserProfile.AddAsync(UserProfile);
             return await SaveChangesAsync();
+        }
+
+        public async Task<UserProfile> getByUsernameAsync(string Username)
+        {
+          return await _context.UserProfile.FirstOrDefaultAsync(u => u.UserName == Username);
         }
     }
 }

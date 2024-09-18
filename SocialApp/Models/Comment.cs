@@ -14,7 +14,7 @@ namespace SocialApp.Models
 
         [Required]
         [DataType(DataType.DateTime)]
-        public DateTime? CreatedAt { get; set; } = DateTime.Now;
+        public DateTime? CreatedAt { get; set; } = DateTime.Now.ToUniversalTime();
 
         [DataType(DataType.DateTime)]
         public DateTime? UpdatedAt { get; set; }

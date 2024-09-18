@@ -37,6 +37,18 @@ builder.Services.AddDefaultIdentity<AppUser>(options =>
 builder.Services.AddControllers();
 //builder.Services.AddControllersWithViews();
 
+// Configure CORS
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")   // Allows requests from any origin
+              .AllowAnyHeader()     // Allows any headers
+              .AllowAnyMethod()
+              .AllowCredentials();    // Allows any HTTP method
+    });
+});
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -71,6 +83,7 @@ builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection(
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ILikeService, LikeService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
@@ -103,6 +116,8 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseCors();
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>

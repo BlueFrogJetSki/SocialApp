@@ -4,32 +4,36 @@ using SocialApp.DataTransferObject;
 using SocialApp.Interfaces.Repositories;
 using SocialApp.Interfaces.Services;
 using SocialApp.Models;
+using SocialApp.Services;
 
 
 namespace SocialApp.Controllers
 {
+    //TODO Change id param to username
     [ApiController]
     [Route("api/[controller]")]
     public class UserProfilesController : Controller
     {
         private readonly IUserProfileRepository _repository;
         private readonly IImageService _imageService;
+        private readonly ITokenService _tokenService;
 
-        public UserProfilesController(IUserProfileRepository repository, IImageService imageService)
+        public UserProfilesController(IUserProfileRepository repository, IImageService imageService, ITokenService tokenService)
         {
             _repository = repository;
             _imageService = imageService;
+            _tokenService = tokenService;
         }
 
 
 
         // GET: UserProfiles/Details/5 
-        [HttpGet("details/{id}")]
+        [HttpGet("details/{username}")]
         [Authorize]
-        public async Task<IActionResult> Details(string id)
+        public async Task<IActionResult> Details(string username)
         {
 
-            var userProfile = await _repository.GetAsync(id);
+            var userProfile = await _repository.getByUsernameAsync(username);
 
             if (userProfile == null)
             {
@@ -41,21 +45,22 @@ namespace SocialApp.Controllers
             return Ok(profileDetailsDTO);
         }
 
-        // POST: UserProfiles/Edit/5
+        // POST: UserProfiles/Edit
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost("edit/{id}")]
+        [HttpPost("edit/{username}")]
         [Authorize]
-        public async Task<IActionResult> Edit(string id, [FromForm] EditProflieDTO profileDTO)
+        public async Task<IActionResult> Edit(string username, [FromForm] EditProflieDTO profileDTO)
         {
             if (!ModelState.IsValid) { return BadRequest(ModelState); }
 
-            if (!await _repository.ExistsAsync(id))
+            var userProfile = await _repository.getByUsernameAsync(username);
+
+            if (userProfile == null)
             {
                 return NotFound();
             }
 
-            UserProfile? userProfile = await _repository.GetAsync(id);
 
             //if Image is provided, upload the image and change IconURL, else do nothing
             // Handle image upload

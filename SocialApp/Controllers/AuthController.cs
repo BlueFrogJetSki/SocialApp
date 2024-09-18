@@ -109,14 +109,26 @@ namespace SocialApp.Controllers
                 return BadRequest(ModelState);
             }
 
+           
             //Include userProfile here so tokenservice can use it later
             var user = await _context.Users.Include(u => u.UserProfile).FirstOrDefaultAsync(u => u.UserName == loginModel.Username);
 
             if (user != null && await _userManager.CheckPasswordAsync(user, loginModel.Password))
             {
+                
                 var token = _tokenService.GenerateJwtToken(user);
-               
-                return Ok(new { Token = token });
+
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false, // Set to true for HTTPS
+                    SameSite = SameSiteMode.Lax,
+                    Expires = DateTime.UtcNow.AddHours(1) // Set expiration as needed
+                };
+
+                Response.Cookies.Append("Authorization", token, cookieOptions);
+
+                return Ok(new { message = "login successful" });
             }
             return Unauthorized();
         }
