@@ -77,6 +77,8 @@ namespace SocialApp.Controllers
         [Authorize]
         public async Task<IActionResult> Create([FromForm] CreatePostDTO createPostDTO, IFormFile? imageFile)
         {
+            if (imageFile == null || imageFile.Length == 0)
+                return BadRequest("Empty file uploaded.");
 
             if (!ModelState.IsValid || imageFile == null) { return BadRequest(ModelState); }
 
@@ -112,7 +114,7 @@ namespace SocialApp.Controllers
             catch (Exception ex)
             {
                 //failed to upload image
-                return BadRequest(ex.Message);
+                return BadRequest(new { error = ex.Message });
             }
 
 

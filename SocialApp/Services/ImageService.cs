@@ -2,7 +2,6 @@
 using CloudinaryDotNet.Actions;
 using Microsoft.Extensions.Options;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.Processing;
 using SocialApp.Helpers;
@@ -28,39 +27,7 @@ namespace SocialApp.Services
         public async Task<ImageUploadResult> UploadPostImageAsync(IFormFile file)
         {
             // Ensure the result is initialized
-            var uploadResult = new ImageUploadResult();
-
-            // Check if the file is valid
-            if (file != null && file.Length > 0)
-            {
-
-                using (var inputStream = file.OpenReadStream())
-                {
-                    var outputStream = new MemoryStream();
-
-                    resizeImage(inputStream, outputStream, 1080, 1080);
-
-                    // Prepare parameters for the image upload
-                    var uploadParams = new ImageUploadParams
-                    {
-                        File = new FileDescription(file.FileName, outputStream),
-                        UniqueFilename = false
-
-                    };
-
-
-                    // Upload the image to Cloudinary
-                    uploadResult = await _cloudinary.UploadAsync(uploadParams);
-
-                    //throw errors if there are any
-                    if (uploadResult.Error != null)
-                    {
-                        throw new Exception(uploadResult.Error.Message);
-                    }
-
-
-                }
-            }
+            var uploadResult = await UploadImageAsync(file, 1080, 1080);
 
             return uploadResult;
         }
@@ -92,40 +59,7 @@ namespace SocialApp.Services
         public async Task<ImageUploadResult> UploadProfileImageAsync(IFormFile file)
         {
             // Ensure the result is initialized
-            var uploadResult = new ImageUploadResult();
-
-            // Check if the file is valid
-            if (file != null && file.Length > 0)
-            {
-
-                using (var inputStream = file.OpenReadStream())
-                {
-                    var outputStream = new MemoryStream();
-                   
-
-                    resizeImage(inputStream, outputStream,110,110);
-
-                    // Prepare parameters for the image upload
-                    var uploadParams = new ImageUploadParams
-                    {
-                        File = new FileDescription(file.FileName, outputStream),
-                        UniqueFilename = false
-
-                    };
-
-
-                    // Upload the image to Cloudinary
-                    uploadResult = await _cloudinary.UploadAsync(uploadParams);
-
-                    //throw errors if there are any
-                    if (uploadResult.Error != null)
-                    {
-                        throw new Exception(uploadResult.Error.Message);
-                    }
-
-
-                }
-            }
+            var uploadResult = await UploadImageAsync(file, 110, 110);
 
             return uploadResult;
         }
@@ -136,11 +70,50 @@ namespace SocialApp.Services
             using (Image image = Image.Load(inputStream))
             {
                 image.Mutate(x => x.Resize(width, height));
-                
+
                 image.Save(outputStream, new PngEncoder());
+
+                outputStream.Position = 0;
 
             }
 
+            Console.WriteLine(outputStream.Length);
+            if (outputStream.Length > 0)
+            {
+                Console.WriteLine("resize successful");
+            }
+
         }
+
+        private async Task<ImageUploadResult> UploadImageAsync(IFormFile file, int width, int height)
+        {
+            var uploadResult = new ImageUploadResult();
+
+            if (file != null && file.Length > 0)
+            {
+                using (var inputStream = file.OpenReadStream())
+                using (var outputStream = new MemoryStream())
+                {
+                    resizeImage(inputStream, outputStream, width, height);
+
+                    var uploadParams = new ImageUploadParams
+                    {
+                        File = new FileDescription(file.FileName, outputStream),
+                        UniqueFilename = false
+                    };
+
+                    uploadResult = await _cloudinary.UploadAsync(uploadParams);
+
+                    if (uploadResult.Error != null)
+                    {
+                        Console.WriteLine("failed to upload to cloundinary");
+                        throw new Exception(uploadResult.Error.Message);
+                    }
+                }
+            }
+
+            return uploadResult;
+        }
+
     }
 }
