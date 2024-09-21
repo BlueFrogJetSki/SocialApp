@@ -35,5 +35,17 @@ namespace SocialApp.Models
         public string ? AuthorName { get; set; }
         public ICollection<Like>? Likes { get; set; } = new HashSet<Like>();
         public ICollection<Comment>? SubComments { get; set; } = new List<Comment>();
+
+        public Comment (string PostId, string AuthorProfileId, string Text)
+        {
+            this.PostId = PostId;
+            this.AuthorProfileId = AuthorProfileId;
+            this.Text = Text;
+        }
+
+        public Comment()
+        {
+            
+        }
     }
 }

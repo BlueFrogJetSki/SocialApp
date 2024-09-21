@@ -1,12 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SocialApp.Models
 {
+    [PrimaryKey(nameof(FollowerId), nameof(FolloweeId))]
     public class Follow
-    {
-        [Key]
-        public string? Id {  get; set; }
+    { 
 
         [ForeignKey("Follower")]
         public string? FollowerId {  get; set; }

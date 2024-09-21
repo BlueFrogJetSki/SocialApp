@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SocialApp.Data;
 using SocialApp.Interfaces.Repositories;
 using SocialApp.Models;
@@ -13,9 +14,9 @@ namespace SocialApp.Repositories
             _context = context;
         }
 
-        public async Task<bool> DeleteAsync(string id)
+        public async Task<bool> DeleteAsync(string AuthorProfileId, string EntityType, string EntityId)
         {
-            Like? Like = await GetAsync(id);
+            Like? Like = await _context.Like.FirstOrDefaultAsync(l => l.AuthorProfileId == AuthorProfileId && l.EntityType == EntityType && l.EntityId == EntityId);
 
             if (Like == null) { return false; }
 
@@ -25,21 +26,24 @@ namespace SocialApp.Repositories
 
         }
 
-        public async Task<bool> ExistsAsync(string id)
+        public async Task<bool> ExistsAsync(string AuthorProfileId, string EntityType, string EntityId)
         {
-            var Like = await _context.Like.FindAsync(id);
+            var Like = await _context.Like.FirstOrDefaultAsync(l => l.AuthorProfileId == AuthorProfileId && l.EntityType == EntityType && l.EntityId == EntityId);
+
 
             return Like != null;
         }
 
-        public async Task<Like?> GetAsync(string id)
+        public async Task<Like?> GetAsync(string AuthorProfileId, string EntityType, string EntityId)
         {
-            return await _context.Like.Include(l => l.AuthorProfile).FirstOrDefaultAsync(l => l.Id == id);
+            return await _context.Like.FirstOrDefaultAsync(l => l.AuthorProfileId == AuthorProfileId && l.EntityType == EntityType && l.EntityId == EntityId);
+
         }
 
-        public async Task<IEnumerable<Like>> GetListAsync()
+        public async Task<IEnumerable<Like>> GetListAsync(string entityType, string entityID)
         {
-            return await _context.Like.Include(p => p.AuthorProfile).ToListAsync();
+            return await _context.Like.Where(l => l.EntityType == entityType && l.EntityId == entityID).ToListAsync();
+
         }
 
         public async Task<bool> SaveChangesAsync()
@@ -51,7 +55,7 @@ namespace SocialApp.Repositories
         public async Task<bool> UpdateAsync(Like Like)
         {
 
-            var ExistingLike = await GetAsync(Like.Id);
+            var ExistingLike = await GetAsync(Like.AuthorProfileId, Like.EntityType, Like.EntityId);
             if (ExistingLike == null) { return false; }
             
             _context.Entry(ExistingLike).CurrentValues.SetValues(Like);

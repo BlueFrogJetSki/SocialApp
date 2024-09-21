@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Controller;
 using SocialApp.Data;
 using SocialApp.DataTransferObject;
 using SocialApp.Interfaces.Repositories;
@@ -18,6 +19,7 @@ namespace SocialApp.Controllers
         private readonly ILikeService _likeService;
         private readonly ITokenService _tokenService;
 
+
         public PostsController(IPostRepository repository, IImageService imageService, ApplicationDbContext context, ILikeService likeService, ITokenService tokenService)
         {
             _context = context;
@@ -25,6 +27,7 @@ namespace SocialApp.Controllers
             _postRepository = repository;
             _likeService = likeService;
             _tokenService = tokenService;
+           
         }
 
         [HttpGet("")]
@@ -121,16 +124,19 @@ namespace SocialApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost("edit/{id}")]
         [Authorize]
-        public async Task<IActionResult> Edit(string id, [FromForm] CreatePostDTO createPostDTO)
+        public async Task<IActionResult> Edit(string id, [FromBody] CreatePostDTO createPostDTO)
         {
+          
 
             if (!ModelState.IsValid) { return BadRequest(ModelState); }
 
             var existingPost = await _postRepository.GetAsync(id);
             if (existingPost == null) { return NotFound(); }
-
+            Console.WriteLine("checking cookie");
             //Checks if existingPost belongs to the user making the request
-            if (!Request.Cookies.TryGetValue("Authorization", out var token)) { return Unauthorized(); }
+            if (!Request.Cookies.TryGetValue("Authorization", out var token)) { Console.WriteLine("not cookie found"); return Unauthorized(); }
+            Console.Write("Cookie found");
+            Console.WriteLine(token);
 
             string? profileId = _tokenService.GetProfileIdFromToken(token);
 

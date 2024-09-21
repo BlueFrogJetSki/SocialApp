@@ -1,8 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SocialApp.Models
 {
+    [Index(nameof(UserName), IsUnique =true)]
     public class UserProfile
     {
         // It is initialized with a new GUID to ensure uniqueness.

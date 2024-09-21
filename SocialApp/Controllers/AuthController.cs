@@ -128,7 +128,7 @@ namespace SocialApp.Controllers
 
                 Response.Cookies.Append("Authorization", token, cookieOptions);
 
-                return Ok(new { message = "login successful" });
+                return Ok(new { message = "login successful", token = token });
             }
             return Unauthorized();
         }

@@ -42,7 +42,7 @@ namespace SocialApp.Controllers
 
         [HttpPost("create/{postId}")]
         [Authorize]
-        public async Task<IActionResult> Create(string postId, [FromBody] Comment comment)
+        public async Task<IActionResult> Create(string postId, [FromBody] CreateCommentDTO commentDTO)
         {
 
             if (!ModelState.IsValid) { return BadRequest(ModelState); }
@@ -57,9 +57,7 @@ namespace SocialApp.Controllers
 
             if (author == null) { return NotFound("profile not found"); }
 
-            comment.PostId = postId;
-            comment.AuthorProfileId = author.Id;
-            comment.AuthorName = author.UserName;
+            Comment comment = new Comment(postId, author.Id, commentDTO.Text);
 
             //abstract to repository
             var createdComment = await _commentRepository.CreateAsync(comment);
@@ -68,16 +66,18 @@ namespace SocialApp.Controllers
 
             var resultComment = await _commentRepository.GetAsync(comment.Id);
 
+            if (resultComment == null) { return StatusCode(500); }
+
             return Ok(new CommentDTO(resultComment));
 
         }
 
         [HttpPost("reply/{parentCommentId}")]
         [Authorize]
-        public async Task<IActionResult> Reply(string parentCommentId, [FromBody] Comment comment)
+        public async Task<IActionResult> Reply(string parentCommentId, [FromBody] CreateCommentDTO commentDTO)
         {
 
-            var parentComment = await _commentRepository.GetAsync(parentCommentId);
+            
 
             if (!ModelState.IsValid) { return BadRequest(ModelState); }
 
@@ -86,19 +86,15 @@ namespace SocialApp.Controllers
 
             UserProfile? author = await _context.UserProfile.FirstOrDefaultAsync(user => user.Id == profileId);
 
-
+            var parentComment = await _commentRepository.GetAsync(parentCommentId);
 
             //add new comment
             if (author == null || parentComment == null) { return NotFound(); }
 
-            comment.PostId = parentComment.PostId;
-            comment.AuthorProfileId = author.Id;
-            comment.AuthorName = author.UserName;
+           var comment = new Comment(parentComment.PostId, author.Id, commentDTO.Text);
 
             _context.Comment.Add(comment);
             _context.SaveChanges();
-
-
 
             //add child comment to parent
             parentComment?.SubComments.Add(comment);
@@ -126,10 +122,10 @@ namespace SocialApp.Controllers
             //invalid token
             if (profileId == null) { return Unauthorized(); }
 
-            Like? like = _likeService.LikeItem(comment, profileId);
+            var success = _likeService.LikeItem(comment, profileId);
 
 
-            return Ok(like);
+            return Ok(new {success=success});
 
         }
 

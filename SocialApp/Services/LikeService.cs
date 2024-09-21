@@ -17,14 +17,14 @@ namespace SocialApp.Services
         //Increment LikeCount by 1 in item
         //Create a like in the database
         //add the like to the Collection<Like> in item
-        public Like? LikeItem(ILikeable item, string authorProfileId)
+        public bool LikeItem(ILikeable item, string authorProfileId)
         {
             
-            if (item == null) { return null; }
+            if (item == null) { return false; }
 
             var existingLike = _context.Like.FirstOrDefault(like => like.AuthorProfileId == authorProfileId && like.EntityId == item.Id);
 
-            if (existingLike != null) {  return existingLike; }
+            if (existingLike != null) {  return true; }
 
      
             item.LikesCount++;
@@ -44,7 +44,7 @@ namespace SocialApp.Services
             _context.SaveChanges();
 
            
-            return newLike;
+            return true;
 
         }
 
@@ -52,14 +52,14 @@ namespace SocialApp.Services
         //remove the associated like in the database
         //remove the like to the Collection<Like> in item
 
-        public Like? RemoveLike(ILikeable item, string authorProfileId)
+        public bool RemoveLike(ILikeable item, string authorProfileId)
         {
 
-            if (item == null) { return null; }
+            if (item == null) { return false; }
 
             var existingLike = _context.Like.FirstOrDefault(like => like.AuthorProfileId == authorProfileId && like.EntityId == GetEntityId(item));
 
-            if (existingLike == null) { return null; }
+            if (existingLike == null) { return false; }
 
             item.LikesCount--;
 
@@ -70,7 +70,7 @@ namespace SocialApp.Services
             item.Likes.Remove(existingLike);
             _context.SaveChanges();
 
-            return existingLike;
+            return true;
 
         }
 

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SocialApp.Models
@@ -6,14 +7,10 @@ namespace SocialApp.Models
     /// <summary>
     /// Represents a "like" action by a user on a post within the application.
     /// </summary>
+    [PrimaryKey(nameof(AuthorProfileId), nameof(EntityType), nameof(EntityId))]
     public class Like
     {
-        // TODO: Decide how to implement likes for different objects
-        // The Id property uniquely identifies a Like instance.
-        // It is initialized with a new GUID to ensure uniqueness.
-        [Key]
-        public string Id { get; set; } = Guid.NewGuid().ToString();
-
+       
         // The DateTime property records when the like was created.
         [Required]
         [DataType(DataType.DateTime)]

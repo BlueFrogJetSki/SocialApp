@@ -52,13 +52,12 @@ namespace SocialAppTests
 
             // Assert
             Assert.IsNotNull(result);
-            Assert.AreEqual(authorProfileId, result.AuthorProfileId);
             Assert.AreEqual(_post.LikesCount, initialLikesCount + 1);
             Assert.IsTrue(_post.Likes.Any(like => like.AuthorProfileId == authorProfileId));
 
             var dbLike = _context.Like.FirstOrDefault(like => like.AuthorProfileId == authorProfileId);
             Assert.IsNotNull(dbLike);
-            Assert.AreEqual(result.AuthorProfileId, dbLike.AuthorProfileId);
+            
         }
 
         [TestMethod]

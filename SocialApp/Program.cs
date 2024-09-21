@@ -69,6 +69,15 @@ builder.Services.AddAuthentication(options =>
     // Optional: Log or debug failed token validation issues
     options.Events = new JwtBearerEvents
     {
+        OnMessageReceived = context =>
+        {
+            var token = context.Request.Cookies["Authorization"];
+            if (!string.IsNullOrEmpty(token))
+            {
+                context.Token = token;
+            }
+            return Task.CompletedTask;
+        },
         OnAuthenticationFailed = context =>
         {
             // Log the exception or provide additional debugging info

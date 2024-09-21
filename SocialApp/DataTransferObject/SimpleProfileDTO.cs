@@ -13,8 +13,6 @@ namespace SocialApp.DataTransferObject
         [RegularExpression(@"^[a-zA-Z0-9_]+$", ErrorMessage = "Username can only contain letters, numbers, and underscores.")]
         public string? UserName { get; set; }
 
-        [StringLength(150, ErrorMessage = "Biography cannot be longer than 150 characters.")]
-        public string? Biography { get; set; }
 
         //User Profile Picture
 
