@@ -1,14 +1,21 @@
-﻿using SocialApp.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using SocialApp.Interfaces;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SocialApp.Models
 {
-    public class Comment:ILikeable
+    public class Comment : ILikeable
     {
         // It is initialized with a new GUID to ensure uniqueness.
         [Key]
         public string Id { get; set; } = Guid.NewGuid().ToString();
+
+        [ForeignKey("parentComment")]
+        public string? parentCommentId { get; set; } = null;
+        [DeleteBehavior(DeleteBehavior.Cascade)]
+        public Comment ParentComment { get; set; }
+
 
         public string Type { get; set; } = "Comment";
 
@@ -21,7 +28,9 @@ namespace SocialApp.Models
 
         public int LikesCount { get; set; } = 0;
 
-        [Required(ErrorMessage ="Comment must contain at least 1 character")]
+        public int SubcommentCount { get; set; } = 0;
+
+        [Required(ErrorMessage = "Comment must contain at least 1 character")]
         public string? Text { get; set; }
 
         [ForeignKey("Post")]
@@ -32,20 +41,18 @@ namespace SocialApp.Models
         [ForeignKey("AuthorProfile")]
         public string? AuthorProfileId { get; set; }
         public UserProfile? AuthorProfile { get; set; }
-        public string ? AuthorName { get; set; }
-        public ICollection<Like>? Likes { get; set; } = new HashSet<Like>();
-        public ICollection<Comment>? SubComments { get; set; } = new List<Comment>();
 
-        public Comment (string PostId, string AuthorProfileId, string Text)
+
+        public Comment(string PostId, string profileId, string Text)
         {
             this.PostId = PostId;
-            this.AuthorProfileId = AuthorProfileId;
+            AuthorProfileId = profileId;
             this.Text = Text;
         }
 
         public Comment()
         {
-            
+
         }
     }
 }

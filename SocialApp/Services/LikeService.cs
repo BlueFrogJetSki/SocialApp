@@ -40,8 +40,7 @@ namespace SocialApp.Services
             _context.Like.Add(newLike);
             _context.SaveChanges();
 
-            item.Likes.Add(newLike);
-            _context.SaveChanges();
+           
 
            
             return true;
@@ -67,8 +66,7 @@ namespace SocialApp.Services
             _context.Like.Remove(existingLike);
             _context.SaveChanges();
 
-            item.Likes.Remove(existingLike);
-            _context.SaveChanges();
+           
 
             return true;
 

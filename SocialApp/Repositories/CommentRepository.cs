@@ -34,14 +34,12 @@ namespace SocialApp.Repositories
 
         public async Task<Comment?> GetAsync(string id)
         {
-            return await _context.Comment.Include(c => c.AuthorProfile).Include(c => c.SubComments).FirstOrDefaultAsync(p => p.Id == id);
+            return await _context.Comment.Include(c => c.AuthorProfile).FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<IEnumerable<Comment>> GetListAsync()
         {
-            return await _context.Comment.Include(p => p.AuthorProfile)
-                .Include(p => p.Likes)
-                .Include(p => p.SubComments).ToListAsync();
+            return await _context.Comment.Include(p => p.AuthorProfile).ToListAsync();
         }
 
         public async Task<bool> SaveChangesAsync()
@@ -71,8 +69,14 @@ namespace SocialApp.Repositories
 
         async Task<List<Comment>> ICommentRepository.GetCommentsForPostAsync(string postId)
         {
-            var comments = await _context.Comment.Where(c => c.PostId == postId).ToListAsync();
+            var comments = await _context.Comment.Include(c => c.AuthorProfile).Where(c => c.PostId == postId).ToListAsync();
             return comments;
+        }
+
+        async Task<List<Comment>> ICommentRepository.GetSubComments(string parentId)
+        {
+            var subcomments = await _context.Comment.Where(c => c.parentCommentId == parentId).ToListAsync();
+            return subcomments;
         }
     }
 }

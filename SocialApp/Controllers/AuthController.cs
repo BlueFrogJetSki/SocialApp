@@ -121,8 +121,8 @@ namespace SocialApp.Controllers
                 var cookieOptions = new CookieOptions
                 {
                     HttpOnly = true,
-                    Secure = false, // Set to true for HTTPS
-                    SameSite = SameSiteMode.Lax,
+                    Secure = true, // Set to true for HTTPS
+                    SameSite = SameSiteMode.None,
                     Expires = DateTime.UtcNow.AddHours(1) // Set expiration as needed
                 };
 

@@ -13,6 +13,7 @@ namespace SocialApp.DataTransferObject
         [DataType(DataType.DateTime)]
         public DateTime? CreatedAt { get; set; }
         public int LikesCount { get; set; } = 0;
+        public int SubcommentCount { get; set; } = 0;
 
         [Required(ErrorMessage = "Comment must contain at least 1 character")]
         public string? Text { get; set; }
@@ -28,7 +29,7 @@ namespace SocialApp.DataTransferObject
             LikesCount = comment.LikesCount;
             Text = comment.Text;
             AuthorDTO = new SimpleProfileDTO(comment.AuthorProfile);
-            SubCommentDTOs = serializeComments(comment.SubComments);
+            SubcommentCount = comment.SubcommentCount;
 
         }
 

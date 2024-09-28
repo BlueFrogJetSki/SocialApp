@@ -7,8 +7,6 @@ namespace SocialApp.Interfaces
         public string Id { get; set; }
         public int LikesCount { get; set; }
 
-        public ICollection<Like> Likes { get; set; }
-
         public string Type { get; set; }
 
         //public bool AddLike(Like like);

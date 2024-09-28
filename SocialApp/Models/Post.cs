@@ -38,11 +38,10 @@ namespace SocialApp.Models
         public string? AuthorProfileId { get; set; }
         public UserProfile? AuthorProfile { get; set; }
 
-        // The Comments property holds a collection of comments associated with the post.
-        public ICollection<Comment> Comments { get; set; } = new HashSet<Comment>();
+        public int CommentCount { get; set; } = 0;
 
         // From ILikeable
         public int LikesCount { get; set; } = 0;
-        public ICollection<Like> Likes { get; set; } = new HashSet<Like>();
+      
     }
 }

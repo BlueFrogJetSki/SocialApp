@@ -22,6 +22,8 @@ namespace SocialApp.DataTransferObject
         //Author Info
         public SimpleProfileDTO? AuthorDTO { get; set; }
 
+        public int CommentCount { get; set; } = 0;
+
         // From ILikeable
         public int LikesCount { get; set; } = 0;
 
@@ -35,31 +37,9 @@ namespace SocialApp.DataTransferObject
             Hidden = post.Hidden;
             AuthorDTO = new SimpleProfileDTO(post.AuthorProfile);
             LikesCount = post.LikesCount;
+            CommentCount = post.CommentCount;
         }
 
-        //TODO Create a single definition for this function to be used across DTOS
-        public List<CommentDTO> serializeComments(ICollection<Comment> comments)
-        {
-            var result = new List<CommentDTO>();
-            foreach (Comment comment in comments)
-            {
-
-                result.Add(new CommentDTO(comment));
-            }
-
-            return result;
-        }
-
-        public List<LikeDTO> serializeLikes(ICollection<Like> likes)
-        {
-            var result = new List<LikeDTO>();
-            foreach (var l in likes)
-            {
-
-                result.Add(new LikeDTO(l));
-            }
-
-            return result;
-        }
+      
     }
 }
